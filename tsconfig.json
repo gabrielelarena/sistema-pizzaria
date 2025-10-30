@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./back/src",
+    "outDir": "./back/dist",
+    "skipLibCheck": true,
+
+    // Environment Settings
+    "module": "commonjs",            // Para navegador moderno
+    "target": "ES6",            // JS moderno
+    "lib": ["DOM", "ES6"],      // Para acessar DOM e recursos ES6
+    "strict": true,             // Todas as checagens estritas
+    "esModuleInterop": true,    // Para compatibilidade de imports
+
+    // Other Outputs
+    "sourceMap": true,
+    
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Style Options
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Module options
+    "isolatedModules": true
+  },
+  "include": ["back/src/**/*"]
+}
