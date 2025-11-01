@@ -1,16 +1,24 @@
 export interface Cliente {
+  cliente_id: string;
   cpf: string;
   nome: string;
-  telefone: string;
   endereco: string;
-  pagamento: string;
+  telefone: string;
 }
 
 export interface Pedido {
-  pizza: string;
-  tamanho: string;
-  quantidadePizza: number;
-  bebida: string;
-  quantidadeBebida: number;
   data_pedido: string;
+  cpf: string;
+  pizza: string;
+  quantidade_pizza: number;
+  tamanho: string;
+  bebida: string;
+  quantidade_bebida: number;
+  sobremesa: string;
+  quantidade_sobremesa: number;
+  observacoes: string;
+  forma_pagamento: string;
+  preco_total: number;
+  cupom: string;
 }
+

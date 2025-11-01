@@ -1,62 +1,71 @@
+// Campos de seleção de pedido
 const sabor = document.getElementById("Sabor") as HTMLSelectElement;
 const tamanho = document.getElementById("tamanho") as HTMLSelectElement;
 const qtdPizza = document.getElementById("quantidade_pizza") as HTMLInputElement;
 const bebida = document.getElementById("bebida") as HTMLSelectElement;
 const qtdBebida = document.getElementById("quantidade_bebida") as HTMLInputElement;
+const sobremesa = document.getElementById("sobremesa") as HTMLSelectElement;
+const qtdSobremesa = document.getElementById("quantidade_sobremesa") as HTMLInputElement;
+
+// Campos de dados do cliente
+const inputCPF = document.getElementById("cpf") as HTMLInputElement;
+const inputNome = document.getElementById("nome") as HTMLInputElement;
+const inputTelefone = document.getElementById("telefone") as HTMLInputElement;
+const inputEndereco = document.getElementById("endereco") as HTMLInputElement;
+const inputPagamento = document.getElementById("pagamento") as HTMLInputElement;
+
+// Campos adicionais
+const inputObservacoes = document.getElementById("observacoes") as HTMLInputElement;
+const inputCupom = document.getElementById("cupom") as HTMLInputElement;
+
+// Elementos de controle
 const blocoNotas = document.getElementById("blocoNotas") as HTMLDivElement;
 const btnAdicionar = document.getElementById("btnAdicionar") as HTMLButtonElement;
 const btnEnviar = document.getElementById("btnEnviar") as HTMLButtonElement;
 
-// Campos do cliente
-const inputCPF = document.querySelector('input[aria-label="CPF"]') as HTMLInputElement;
-const inputNome = document.querySelector('input[aria-label="First name"]') as HTMLInputElement;
-const inputTelefone = document.querySelector('input[type="tel"]') as HTMLInputElement;
-const inputEndereco = document.querySelector('input[placeholder^="Ex: Rua"]') as HTMLInputElement;
-const inputPagamento = document.querySelector('input[placeholder^="Pix"]') as HTMLInputElement;
-
-interface Pedido {
-  pizza: string;
-  tamanho: string;
-  quantidadePizza: number;
-  bebida: string;
-  quantidadeBebida: number;
-  // cpf: string;
-  data_pedido: string;
-}
-
-interface Cliente {
+export interface Cliente {
+  cliente_id: string;
   cpf: string;
   nome: string;
   telefone: string;
   endereco: string;
-  pagamento: string;
 }
 
-const pedidos: Pedido[] = [];
-let cliente: Cliente | null = null;
+export interface Pedido {
+  cpf: string;
+  data_pedido: string;
+  pizza: string;
+  quantidadePizza: number;
+  tamanho: string;
+  bebida: string;
+  quantidadeBebida: number;
+  sobremesa: string;
+  quantidadeSobremesa: number;
+  observacoes: string;
+  forma_pagamento: string;
+  preco_total: number;
+  cupom: string;
+}
 
-// Adiciona pedido ao array
+
+const pedidos: Pedido[] = [];
+
 btnAdicionar.addEventListener("click", () => {
   const pizzaSelecionada = sabor.selectedIndex > 0;
   const bebidaSelecionada = bebida.selectedIndex > 0;
-  const dataAtual = new Date().toISOString().split('T')[0];
-  const campoData = document.getElementById("data_pedido") as HTMLInputElement;
-  campoData.value = dataAtual; // atribui a data atual no campo hidden
+  const sobremesaSelecionada = sobremesa.selectedIndex > 0;
 
-
-  if (!pizzaSelecionada && !bebidaSelecionada) {
-    alert("Selecione pelo menos uma pizza ou uma bebida.");
+  if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada) {
+    alert("Selecione pelo menos uma pizza, bebida ou sobremesa.");
     return;
   }
 
-  // Captura os valores brutos
   const cpf = inputCPF.value.trim();
   const nome = inputNome.value.trim();
   const telefone = inputTelefone.value.trim();
-  const endereco = inputEndereco.value.trim();
+  // const endereco = inputEndereco.value.trim();
   const pagamento = inputPagamento.value.trim();
 
-  // Validações
   const cpfValido = /^\d{11}$/.test(cpf);
   const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(nome);
   const telefoneValido = /^\d+$/.test(telefone);
@@ -76,33 +85,44 @@ btnAdicionar.addEventListener("click", () => {
     return;
   }
 
-  if (!endereco || !pagamento) {
-    alert("Preencha todos os dados do cliente!");
+  if (!pagamento) {
+    alert("Preencha o campo Forma de Pagamento também!");
     return;
   }
 
-  const data_pedido = new Date().toISOString().split('T')[0];
+  const dataAtual = new Date();
+  const data_pedido = `${dataAtual.toLocaleDateString("pt-BR")} - ${dataAtual.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  })}`;
 
   const novoPedido: Pedido = {
-  pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
-  tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
-  quantidadePizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
-  bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
-  quantidadeBebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
-  data_pedido: campoData.value // pega a data já atribuída
-};
-
+    data_pedido,
+    cpf,
+    pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
+    tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
+    quantidadePizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
+    bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
+    quantidadeBebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
+    sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
+    quantidadeSobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
+    observacoes: inputObservacoes.value.trim(),
+    forma_pagamento: pagamento,
+    preco_total: 0, // pode ser calculado depois
+    cupom: inputCupom.value.trim()
+  };
 
   pedidos.push(novoPedido);
   atualizarBlocoNotas();
 });
+
 
 // Atualiza visualmente o bloco de notas
 function atualizarBlocoNotas() {
   blocoNotas.innerHTML = "";
   pedidos.forEach((p) => {
     let texto = `<p><strong>Pedido:</strong> `;
-    const partes: string[] = [];
+    const partes = [];
 
     if (p.quantidadePizza > 0 && p.pizza) {
       partes.push(`${p.quantidadePizza}x Pizza ${p.pizza} (${p.tamanho})`);
@@ -112,39 +132,77 @@ function atualizarBlocoNotas() {
       partes.push(`${p.quantidadeBebida}x ${p.bebida}`);
     }
 
+    if (p.quantidadeSobremesa > 0 && p.sobremesa) {
+      partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
+    }
+
     texto += partes.join(" + ") + "</p>";
     blocoNotas.innerHTML += texto;
+
+    // Limpa os campos de seleção após adicionar ao bloco de notas
+    sabor.selectedIndex = 0;
+    tamanho.selectedIndex = 0;
+    qtdPizza.value = "1";
+
+    bebida.selectedIndex = 0;
+    qtdBebida.value = "1";
+
+    sobremesa.selectedIndex = 0;
+    qtdSobremesa.value = "1";
+
   });
 }
 
 // Gera conteúdo CSV com cliente + pedidos
 function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
-  const headerCliente = "CPF,Nome,Telefone,Endereço,Pagamento";
-  const dadosCliente = `${cliente.cpf},${cliente.nome},${cliente.telefone},${cliente.endereco},${cliente.pagamento}`;
+  const enderecoFinal = cliente.endereco || "Retirar no local";
+  const headerCliente = "CPF,Nome,Telefone,Endereço";
+  const dadosCliente = `${cliente.cpf},${cliente.nome},${cliente.telefone},${enderecoFinal}`;
 
-  const headerPedido = "Pizza,Tamanho,QuantidadePizza,Bebida,QuantidadeBebida,DataPedido";
+  // Data atual formatada
+  const dataAtual = new Date();
+  const dataFormatada = `${dataAtual.toLocaleDateString("pt-BR")} - ${dataAtual.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  })}`;
+
+  const headerPedido = "Pizza,Tamanho,QuantidadePizza,Bebida,QuantidadeBebida,Sobremesa,QuantidadeSobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
   const linhasPedido = pedidos.map(p =>
-    `${p.pizza},${p.tamanho},${p.quantidadePizza},${p.bebida},${p.quantidadeBebida},${p.data_pedido}`
+    `${p.pizza},${p.tamanho},${p.quantidadePizza},${p.bebida},${p.quantidadeBebida},${p.sobremesa},${p.quantidadeSobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`
   );
 
-  return [headerCliente, dadosCliente, "", headerPedido, ...linhasPedido].join("\n");
+  return [
+    `Data do Pedido: ${dataFormatada}`,
+    headerCliente,
+    dadosCliente,
+    "",
+    headerPedido,
+    ...linhasPedido
+  ].join("\n");
 }
 
-// Gera conteúdo TXT do recibo
+
 function gerarRecibo(cliente: Cliente, pedidos: Pedido[]): string {
+  const agora = new Date();
+  const data_pedido = `${agora.toLocaleDateString("pt-BR")} - ${agora.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  })}`;
+  const enderecoFinal = cliente.endereco.trim() === "" ? "Retirar no local" : cliente.endereco;
   let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------
 
+DATA: ${data_pedido}
 CLIENTE: ${cliente.nome}
 CPF: ${cliente.cpf}
 TELEFONE: ${cliente.telefone}
-ENDEREÇO: ${cliente.endereco}
-PAGAMENTO: ${cliente.pagamento}
+ENDEREÇO: ${enderecoFinal}
 
 `;
 
   let totalItens = 0;
+  let valorTotal = 0;
 
-  pedidos.forEach((p, i) => {
+  pedidos.forEach((p) => {
     const partes: string[] = [];
 
     if (p.quantidadePizza > 0 && p.pizza) {
@@ -157,14 +215,33 @@ PAGAMENTO: ${cliente.pagamento}
       totalItens += p.quantidadeBebida;
     }
 
-    if (partes.length > 0) {
-      recibo += `Pedido ${i + 1} (${p.data_pedido}): ${partes.join(" + ")}\n`;
+    if (p.quantidadeSobremesa > 0 && p.sobremesa) {
+      partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
+      totalItens += p.quantidadeSobremesa;
     }
+
+    if (partes.length > 0) {
+      recibo += `Pedido: ${partes.join(" + ")}\n`;
+    }
+
+    valorTotal += p.preco_total;
   });
+
+  const ultimo: Pedido | undefined = pedidos[pedidos.length - 1];
+
+  if (ultimo) {
+    recibo += `
+FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
+OBSERVAÇÕES: ${ultimo.observacoes}
+CUPOM: ${ultimo.cupom}
+VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
+`;
+  }
 
   recibo += `\nTOTAL DE ITENS: ${totalItens}`;
   return recibo;
 }
+
 
 // Cria e baixa arquivo
 function baixarArquivo(nome: string, conteudo: string, tipo: string) {
@@ -184,21 +261,20 @@ btnEnviar.addEventListener("click", () => {
     return;
   }
 
-  const cliente = {
+  const cliente: Cliente = {
+    cliente_id: `${inputCPF.value.trim()}-${Date.now()}`, // exemplo de ID único
     cpf: inputCPF.value.trim(),
     nome: inputNome.value.trim(),
     telefone: inputTelefone.value.trim(),
     endereco: inputEndereco.value.trim(),
-    pagamento: inputPagamento.value.trim(),
   };
 
-  // Validações 
   const cpfValido = /^\d{11}$/.test(cliente.cpf);
   const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(cliente.nome);
-  const telefoneValido = /^\d{8,15}$/.test(cliente.telefone);
+  const telefoneValido = /^\d+$/.test(cliente.telefone);
 
   if (!cpfValido) {
-    alert("CPF inválido! Deve conter exatamente 11 dígitos numéricos.");
+    alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
     return;
   }
 
@@ -209,11 +285,6 @@ btnEnviar.addEventListener("click", () => {
 
   if (!telefoneValido) {
     alert("Telefone inválido! Deve conter apenas números.");
-    return;
-  }
-
-  if (!cliente.endereco || !cliente.pagamento) {
-    alert("Preencha todos os dados do cliente!");
     return;
   }
 
@@ -240,4 +311,24 @@ btnEnviar.addEventListener("click", () => {
       console.error("Erro ao enviar pedido:", err);
       alert("Erro ao enviar pedido.");
     });
+
+  // Limpa todos os campos após envio
+  inputCPF.value = "";
+  inputNome.value = "";
+  inputTelefone.value = "";
+  inputEndereco.value = "";
+  inputPagamento.value = "";
+  inputObservacoes.value = "";
+  inputCupom.value = "";
+
+  sabor.selectedIndex = 0;
+  tamanho.selectedIndex = 0;
+  qtdPizza.value = "1";
+
+  bebida.selectedIndex = 0;
+  qtdBebida.value = "1";
+
+  sobremesa.selectedIndex = 0;
+  qtdSobremesa.value = "1";
+
 });

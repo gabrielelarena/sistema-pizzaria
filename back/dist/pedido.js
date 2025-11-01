@@ -1,111 +1,179 @@
-"use strict";
-// ---- Elementos do DOM ----
+// Campos de seleção de pedido
 const sabor = document.getElementById("Sabor");
 const tamanho = document.getElementById("tamanho");
 const qtdPizza = document.getElementById("quantidade_pizza");
 const bebida = document.getElementById("bebida");
 const qtdBebida = document.getElementById("quantidade_bebida");
+const sobremesa = document.getElementById("sobremesa");
+const qtdSobremesa = document.getElementById("quantidade_sobremesa");
+// Campos de dados do cliente
+const inputCPF = document.getElementById("cpf");
+const inputNome = document.getElementById("nome");
+const inputTelefone = document.getElementById("telefone");
+const inputEndereco = document.getElementById("endereco");
+const inputPagamento = document.getElementById("pagamento");
+// Campos adicionais
+const inputObservacoes = document.getElementById("observacoes");
+const inputCupom = document.getElementById("cupom");
+// Elementos de controle
 const blocoNotas = document.getElementById("blocoNotas");
 const btnAdicionar = document.getElementById("btnAdicionar");
 const btnEnviar = document.getElementById("btnEnviar");
-const campoData = document.getElementById("data_pedido");
-// Campos do cliente
-const inputCPF = document.querySelector('input[aria-label="CPF"]');
-const inputNome = document.querySelector('input[aria-label="First name"]');
-const inputTelefone = document.querySelector('input[type="tel"]');
-const inputEndereco = document.querySelector('input[placeholder^="Ex: Rua"]');
-const inputPagamento = document.querySelector('input[placeholder^="Pix"]');
-// ---- Arrays de pedidos ----
 const pedidos = [];
-let cliente = null;
-// ---- Adiciona pedido ----
 btnAdicionar.addEventListener("click", () => {
     const pizzaSelecionada = sabor.selectedIndex > 0;
     const bebidaSelecionada = bebida.selectedIndex > 0;
-    if (!pizzaSelecionada && !bebidaSelecionada) {
-        alert("Selecione pelo menos uma pizza ou uma bebida.");
+    const sobremesaSelecionada = sobremesa.selectedIndex > 0;
+    if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada) {
+        alert("Selecione pelo menos uma pizza, bebida ou sobremesa.");
         return;
     }
-    // Captura dados do cliente
     const cpf = inputCPF.value.trim();
     const nome = inputNome.value.trim();
     const telefone = inputTelefone.value.trim();
-    const endereco = inputEndereco.value.trim();
+    // const endereco = inputEndereco.value.trim();
     const pagamento = inputPagamento.value.trim();
-    // Validações
-    if (!/^\d{11}$/.test(cpf)) {
-        alert("CPF inválido! Deve conter 11 números.");
+    const cpfValido = /^\d{11}$/.test(cpf);
+    const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(nome);
+    const telefoneValido = /^\d+$/.test(telefone);
+    if (!cpfValido) {
+        alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
         return;
     }
-    if (!/^[A-Za-zÀ-ÿ\s]{3,}$/.test(nome)) {
-        alert("Nome inválido! Min 3 letras.");
+    if (!nomeValido) {
+        alert("Nome inválido! Deve conter no mínimo 3 letras e apenas letras.");
         return;
     }
-    if (!/^\d+$/.test(telefone)) {
-        alert("Telefone inválido! Apenas números.");
+    if (!telefoneValido) {
+        alert("Telefone inválido! Deve conter apenas números.");
         return;
     }
-    if (!endereco || !pagamento) {
-        alert("Preencha todos os dados do cliente!");
+    if (!pagamento) {
+        alert("Preencha o campo Forma de Pagamento também!");
         return;
     }
-    // Data atual
-    const dataAtual = new Date().toISOString().split('T')[0];
-    if (campoData)
-        campoData.value = dataAtual;
-    // Cria o novo pedido
+    const dataAtual = new Date();
+    const data_pedido = `${dataAtual.toLocaleDateString("pt-BR")} - ${dataAtual.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    })}`;
     const novoPedido = {
+        data_pedido,
+        cpf,
         pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
         tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
         quantidadePizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
         bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
         quantidadeBebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
-        data_pedido: (campoData === null || campoData === void 0 ? void 0 : campoData.value) || dataAtual // garante que nunca fique undefined
+        sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
+        quantidadeSobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
+        observacoes: inputObservacoes.value.trim(),
+        forma_pagamento: pagamento,
+        preco_total: 0, // pode ser calculado depois
+        cupom: inputCupom.value.trim()
     };
     pedidos.push(novoPedido);
     atualizarBlocoNotas();
 });
-// ---- Atualiza visualmente o bloco de notas ----
+// Atualiza visualmente o bloco de notas
 function atualizarBlocoNotas() {
     blocoNotas.innerHTML = "";
-    pedidos.forEach((p, i) => {
+    pedidos.forEach((p) => {
+        let texto = `<p><strong>Pedido:</strong> `;
         const partes = [];
-        if (p.quantidadePizza > 0 && p.pizza)
+        if (p.quantidadePizza > 0 && p.pizza) {
             partes.push(`${p.quantidadePizza}x Pizza ${p.pizza} (${p.tamanho})`);
-        if (p.quantidadeBebida > 0 && p.bebida)
+        }
+        if (p.quantidadeBebida > 0 && p.bebida) {
             partes.push(`${p.quantidadeBebida}x ${p.bebida}`);
-        blocoNotas.innerHTML += `<p><strong>Pedido ${i + 1} (${p.data_pedido}):</strong> ${partes.join(" + ")}</p>`;
+        }
+        if (p.quantidadeSobremesa > 0 && p.sobremesa) {
+            partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
+        }
+        texto += partes.join(" + ") + "</p>";
+        blocoNotas.innerHTML += texto;
+        // Limpa os campos de seleção após adicionar ao bloco de notas
+        sabor.selectedIndex = 0;
+        tamanho.selectedIndex = 0;
+        qtdPizza.value = "1";
+        bebida.selectedIndex = 0;
+        qtdBebida.value = "1";
+        sobremesa.selectedIndex = 0;
+        qtdSobremesa.value = "1";
     });
 }
-// ---- Gera CSV ----
+// Gera conteúdo CSV com cliente + pedidos
 function gerarCSV(cliente, pedidos) {
-    const headerCliente = "CPF,Nome,Telefone,Endereço,Pagamento";
-    const dadosCliente = `${cliente.cpf},${cliente.nome},${cliente.telefone},${cliente.endereco},${cliente.pagamento}`;
-    const headerPedido = "Pizza,Tamanho,QuantidadePizza,Bebida,QuantidadeBebida,DataPedido";
-    const linhasPedido = pedidos.map(p => `${p.pizza},${p.tamanho},${p.quantidadePizza},${p.bebida},${p.quantidadeBebida},${p.data_pedido}`);
-    return [headerCliente, dadosCliente, "", headerPedido, ...linhasPedido].join("\n");
+    const enderecoFinal = cliente.endereco || "Retirar no local";
+    const headerCliente = "CPF,Nome,Telefone,Endereço";
+    const dadosCliente = `${cliente.cpf},${cliente.nome},${cliente.telefone},${enderecoFinal}`;
+    // Data atual formatada
+    const dataAtual = new Date();
+    const dataFormatada = `${dataAtual.toLocaleDateString("pt-BR")} - ${dataAtual.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    })}`;
+    const headerPedido = "Pizza,Tamanho,QuantidadePizza,Bebida,QuantidadeBebida,Sobremesa,QuantidadeSobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
+    const linhasPedido = pedidos.map(p => `${p.pizza},${p.tamanho},${p.quantidadePizza},${p.bebida},${p.quantidadeBebida},${p.sobremesa},${p.quantidadeSobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`);
+    return [
+        `Data do Pedido: ${dataFormatada}`,
+        headerCliente,
+        dadosCliente,
+        "",
+        headerPedido,
+        ...linhasPedido
+    ].join("\n");
 }
-// ---- Gera recibo ----
 function gerarRecibo(cliente, pedidos) {
-    let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------\n\nCLIENTE: ${cliente.nome}\nCPF: ${cliente.cpf}\nTELEFONE: ${cliente.telefone}\nENDEREÇO: ${cliente.endereco}\nPAGAMENTO: ${cliente.pagamento}\n\n`;
+    const agora = new Date();
+    const data_pedido = `${agora.toLocaleDateString("pt-BR")} - ${agora.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    })}`;
+    const enderecoFinal = cliente.endereco.trim() === "" ? "Retirar no local" : cliente.endereco;
+    let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------
+
+DATA: ${data_pedido}
+CLIENTE: ${cliente.nome}
+CPF: ${cliente.cpf}
+TELEFONE: ${cliente.telefone}
+ENDEREÇO: ${enderecoFinal}
+
+`;
     let totalItens = 0;
-    pedidos.forEach((p, i) => {
+    let valorTotal = 0;
+    pedidos.forEach((p) => {
         const partes = [];
-        if (p.quantidadePizza > 0) {
+        if (p.quantidadePizza > 0 && p.pizza) {
             partes.push(`${p.quantidadePizza}x Pizza ${p.pizza} (${p.tamanho})`);
             totalItens += p.quantidadePizza;
         }
-        if (p.quantidadeBebida > 0) {
+        if (p.quantidadeBebida > 0 && p.bebida) {
             partes.push(`${p.quantidadeBebida}x ${p.bebida}`);
             totalItens += p.quantidadeBebida;
         }
-        if (partes.length)
-            recibo += `Pedido ${i + 1} (${p.data_pedido}): ${partes.join(" + ")}\n`;
+        if (p.quantidadeSobremesa > 0 && p.sobremesa) {
+            partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
+            totalItens += p.quantidadeSobremesa;
+        }
+        if (partes.length > 0) {
+            recibo += `Pedido: ${partes.join(" + ")}\n`;
+        }
+        valorTotal += p.preco_total;
     });
+    const ultimo = pedidos[pedidos.length - 1];
+    if (ultimo) {
+        recibo += `
+FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
+OBSERVAÇÕES: ${ultimo.observacoes}
+CUPOM: ${ultimo.cupom}
+VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
+`;
+    }
     recibo += `\nTOTAL DE ITENS: ${totalItens}`;
     return recibo;
 }
-// ---- Cria e baixa arquivo ----
+// Cria e baixa arquivo
 function baixarArquivo(nome, conteudo, tipo) {
     const blob = new Blob([conteudo], { type: tipo });
     const url = URL.createObjectURL(blob);
@@ -115,45 +183,71 @@ function baixarArquivo(nome, conteudo, tipo) {
     a.click();
     URL.revokeObjectURL(url);
 }
-// ---- Envia para backend ----
+// Envia pedido e gera arquivos
 btnEnviar.addEventListener("click", () => {
-    if (!pedidos.length) {
-        alert("Adicione pelo menos um item!");
+    if (pedidos.length === 0) {
+        alert("Adicione pelo menos um item ao pedido!");
         return;
     }
-    const clienteData = {
+    const cliente = {
+        cliente_id: `${inputCPF.value.trim()}-${Date.now()}`, // exemplo de ID único
         cpf: inputCPF.value.trim(),
         nome: inputNome.value.trim(),
         telefone: inputTelefone.value.trim(),
         endereco: inputEndereco.value.trim(),
-        pagamento: inputPagamento.value.trim(),
     };
-    // Validações simples
-    if (!/^\d{11}$/.test(clienteData.cpf) || !/^[A-Za-zÀ-ÿ\s]{3,}$/.test(clienteData.nome) || !/^\d{8,15}$/.test(clienteData.telefone) || !clienteData.endereco || !clienteData.pagamento) {
-        alert("Dados do cliente inválidos!");
+    const cpfValido = /^\d{11}$/.test(cliente.cpf);
+    const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(cliente.nome);
+    const telefoneValido = /^\d+$/.test(cliente.telefone);
+    if (!cpfValido) {
+        alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
         return;
     }
-    // Gera arquivos
-    const csv = gerarCSV(clienteData, pedidos);
-    const recibo = gerarRecibo(clienteData, pedidos);
+    if (!nomeValido) {
+        alert("Nome inválido! Deve conter no mínimo 3 letras e apenas letras.");
+        return;
+    }
+    if (!telefoneValido) {
+        alert("Telefone inválido! Deve conter apenas números.");
+        return;
+    }
+    // Gera recibo e CSV
+    const csv = gerarCSV(cliente, pedidos);
+    const recibo = gerarRecibo(cliente, pedidos);
     baixarArquivo("recibo.txt", recibo, "text/plain");
     console.log("CSV armazenado internamente:\n", csv);
-    // Envia para backend
-    console.log("Enviando para backend:", JSON.stringify({ cliente: clienteData, pedidos }, null, 2));
+    // Envia para o backend
+    console.log("Enviando para backend:", JSON.stringify({ cliente, pedidos }, null, 2));
     fetch("http://localhost:3000/enviar-pedido", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cliente: clienteData, pedidos })
+        body: JSON.stringify({ cliente, pedidos }),
     })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
         alert(data.message || "Pedido enviado com sucesso!");
         pedidos.length = 0;
         blocoNotas.innerHTML = "";
     })
-        .catch(err => {
+        .catch((err) => {
         console.error("Erro ao enviar pedido:", err);
         alert("Erro ao enviar pedido.");
     });
+    // Limpa todos os campos após envio
+    inputCPF.value = "";
+    inputNome.value = "";
+    inputTelefone.value = "";
+    inputEndereco.value = "";
+    inputPagamento.value = "";
+    inputObservacoes.value = "";
+    inputCupom.value = "";
+    sabor.selectedIndex = 0;
+    tamanho.selectedIndex = 0;
+    qtdPizza.value = "1";
+    bebida.selectedIndex = 0;
+    qtdBebida.value = "1";
+    sobremesa.selectedIndex = 0;
+    qtdSobremesa.value = "1";
 });
+export {};
 //# sourceMappingURL=pedido.js.map

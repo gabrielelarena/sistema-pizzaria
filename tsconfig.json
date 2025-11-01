@@ -6,11 +6,12 @@
     "skipLibCheck": true,
 
     // Environment Settings
-    "module": "commonjs",            // Para navegador moderno
+    "module": "ES6",            // Para navegador moderno
     "target": "ES6",            // JS moderno
     "lib": ["DOM", "ES6"],      // Para acessar DOM e recursos ES6
     "strict": true,             // Todas as checagens estritas
-    "esModuleInterop": true,    // Para compatibilidade de imports
+    "esModuleInterop": true,  
+    "moduleResolution": "Node",  // Para compatibilidade de imports
 
     // Other Outputs
     "sourceMap": true,
