@@ -1,5 +1,5 @@
 export interface Cliente {
-  cliente_id: string;
+  id?: number; // gerado pelo banco
   cpf: string;
   nome: string;
   endereco: string;
@@ -7,11 +7,13 @@ export interface Cliente {
 }
 
 export interface Pedido {
-  data_pedido: string;
+  id?: number;
+  cliente_id: number;
   cpf: string;
+  data_pedido: string;
   pizza: string;
-  quantidade_pizza: number;
   tamanho: string;
+  quantidade_pizza: number;
   bebida: string;
   quantidade_bebida: number;
   sobremesa: string;

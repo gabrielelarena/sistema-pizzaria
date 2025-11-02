@@ -35,12 +35,12 @@ export interface Pedido {
   cpf: string;
   data_pedido: string;
   pizza: string;
-  quantidadePizza: number;
+  quantidade_pizza: number;
   tamanho: string;
   bebida: string;
-  quantidadeBebida: number;
+  quantidade_bebida: number;
   sobremesa: string;
-  quantidadeSobremesa: number;
+  quantidade_sobremesa: number;
   observacoes: string;
   forma_pagamento: string;
   preco_total: number;
@@ -101,11 +101,11 @@ btnAdicionar.addEventListener("click", () => {
     cpf,
     pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
     tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
-    quantidadePizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
+    quantidade_pizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
     bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
-    quantidadeBebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
+    quantidade_bebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
     sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
-    quantidadeSobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
+    quantidade_sobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
     observacoes: inputObservacoes.value.trim(),
     forma_pagamento: pagamento,
     preco_total: 0, // pode ser calculado depois
@@ -124,16 +124,16 @@ function atualizarBlocoNotas() {
     let texto = `<p><strong>Pedido:</strong> `;
     const partes = [];
 
-    if (p.quantidadePizza > 0 && p.pizza) {
-      partes.push(`${p.quantidadePizza}x Pizza ${p.pizza} (${p.tamanho})`);
+    if (p.quantidade_pizza > 0 && p.pizza) {
+      partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
     }
 
-    if (p.quantidadeBebida > 0 && p.bebida) {
-      partes.push(`${p.quantidadeBebida}x ${p.bebida}`);
+    if (p.quantidade_bebida > 0 && p.bebida) {
+      partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
     }
 
-    if (p.quantidadeSobremesa > 0 && p.sobremesa) {
-      partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
+    if (p.quantidade_sobremesa > 0 && p.sobremesa) {
+      partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
     }
 
     texto += partes.join(" + ") + "</p>";
@@ -166,9 +166,9 @@ function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
     minute: "2-digit"
   })}`;
 
-  const headerPedido = "Pizza,Tamanho,QuantidadePizza,Bebida,QuantidadeBebida,Sobremesa,QuantidadeSobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
+  const headerPedido = "Pizza,Tamanho,Quantidade_Pizza,Bebida,Quantidade_Bebida,Sobremesa,Quantidade_Sobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
   const linhasPedido = pedidos.map(p =>
-    `${p.pizza},${p.tamanho},${p.quantidadePizza},${p.bebida},${p.quantidadeBebida},${p.sobremesa},${p.quantidadeSobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`
+    `${p.pizza},${p.tamanho},${p.quantidade_pizza},${p.bebida},${p.quantidade_bebida},${p.sobremesa},${p.quantidade_sobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`
   );
 
   return [
@@ -205,19 +205,19 @@ ENDEREÇO: ${enderecoFinal}
   pedidos.forEach((p) => {
     const partes: string[] = [];
 
-    if (p.quantidadePizza > 0 && p.pizza) {
-      partes.push(`${p.quantidadePizza}x Pizza ${p.pizza} (${p.tamanho})`);
-      totalItens += p.quantidadePizza;
+    if (p.quantidade_pizza > 0 && p.pizza) {
+      partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
+      totalItens += p.quantidade_pizza;
     }
 
-    if (p.quantidadeBebida > 0 && p.bebida) {
-      partes.push(`${p.quantidadeBebida}x ${p.bebida}`);
-      totalItens += p.quantidadeBebida;
+    if (p.quantidade_bebida > 0 && p.bebida) {
+      partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
+      totalItens += p.quantidade_bebida;
     }
 
-    if (p.quantidadeSobremesa > 0 && p.sobremesa) {
-      partes.push(`${p.quantidadeSobremesa}x Sobremesa ${p.sobremesa}`);
-      totalItens += p.quantidadeSobremesa;
+    if (p.quantidade_sobremesa > 0 && p.sobremesa) {
+      partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
+      totalItens += p.quantidade_sobremesa;
     }
 
     if (partes.length > 0) {

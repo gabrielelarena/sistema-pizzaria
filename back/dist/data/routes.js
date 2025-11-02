@@ -15,22 +15,23 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
     console.log("Recebido do frontend:", { cliente, pedidos });
     try {
         // Insere cliente
-        yield pool.query(`INSERT INTO clientes (cliente_id, cpf, nome, telefone, endereco)
-   VALUES ($1, $2, $3, $4, $5) RETURNING id`, [cliente.cliente_id, cliente.cpf, cliente.nome, cliente.telefone, cliente.endereco]);
+        const clienteResult = yield pool.query(`INSERT INTO clientes (cpf, nome, telefone, endereco)
+       VALUES ($1, $2, $3, $4) RETURNING id`, [cliente.cpf, cliente.nome, cliente.telefone, cliente.endereco]);
+        const clienteId = clienteResult.rows[0].id;
         // Insere pedidos
         for (const p of pedidos) {
-            console.log("Pedido recebido:", JSON.stringify(p, null, 2));
             yield pool.query(`INSERT INTO pedidos (
-          cliente_id, data_pedido, cpf, pizza, quantidade_pizza, tamanho,
+          cliente_id, cpf, data_pedido, pizza, quantidade_pizza, tamanho,
           bebida, quantidade_bebida, sobremesa, quantidade_sobremesa,
           observacoes, forma_pagamento, preco_total, cupom
         ) VALUES (
-          $1, $2, $3, $4, $5,
-          $6, $7, $8, $9,
-          $10, $11, $12, $13, $14
+          $1, $2, $3, $4, $5, $6,
+          $7, $8, $9, $10,
+          $11, $12, $13, $14
         )`, [
+                clienteId,
+                p.cpf,
                 p.data_pedido,
-                cliente.cpf,
                 p.pizza,
                 p.quantidade_pizza,
                 p.tamanho,
