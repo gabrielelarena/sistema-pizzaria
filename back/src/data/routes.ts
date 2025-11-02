@@ -1,16 +1,18 @@
 import express from 'express';
 import { pool } from './db.js';
-import { Cliente, Pedido } from './models';
+import { Cliente, Pedido } from './models.js';
 
 const router = express.Router();
 
+//
+// 📦 ROTA: Enviar pedido
+//
 router.post('/enviar-pedido', async (req, res) => {
   const { cliente, pedidos }: { cliente: Cliente; pedidos: Pedido[] } = req.body;
 
   console.log("Recebido do frontend:", { cliente, pedidos });
 
   try {
-    // Insere cliente
     const clienteResult = await pool.query(
       `INSERT INTO clientes (cpf, nome, telefone, endereco)
        VALUES ($1, $2, $3, $4) RETURNING id`,
@@ -19,7 +21,6 @@ router.post('/enviar-pedido', async (req, res) => {
 
     const clienteId = clienteResult.rows[0].id;
 
-    // Insere pedidos
     for (const p of pedidos) {
       await pool.query(
         `INSERT INTO pedidos (
@@ -50,11 +51,284 @@ router.post('/enviar-pedido', async (req, res) => {
       );
     }
 
-      res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
-    } catch (error) {
-      console.error('Erro ao salvar pedido:', error);
-      res.status(500).json({ error: 'Erro ao salvar pedido.' });
+    return res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao salvar pedido:', error);
+    return res.status(500).json({ error: 'Erro ao salvar pedido.' });
+  }
+});
+
+// Cadastrar pizza (nome, tamanho e preco obrigatórios)
+router.post('/pizzas', async (req, res) => {
+  const { nome, tamanho, preco } = req.body;
+
+  if (!nome || !tamanho || preco === undefined || preco === null || isNaN(preco)) {
+    return res.status(400).json({ error: 'Campos obrigatórios: nome, tamanho e preço.' });
+  }
+
+  try {
+    const existe = await pool.query(
+      'SELECT * FROM pizzas WHERE nome = $1 AND tamanho = $2',
+      [nome, tamanho]
+    );
+
+    if (existe.rows.length > 0) {
+      return res.status(400).json({ error: 'Essa pizza já existe com esse tamanho.' });
     }
-  });
+
+    await pool.query(
+      'INSERT INTO pizzas (nome, tamanho, preco) VALUES ($1, $2, $3)',
+      [nome, tamanho, preco]
+    );
+
+    return res.status(201).json({ message: 'Pizza cadastrada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao cadastrar pizza:', err);
+    return res.status(500).json({ error: 'Erro ao cadastrar pizza.' });
+  }
+});
+
+// Atualizar pizza (id obrigatório, campos opcionais)
+router.put('/pizzas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+  const { nome, tamanho, preco } = req.body;
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para atualização.' });
+  }
+
+  const campos: string[] = [];
+  const valores: any[] = [];
+
+  if (nome) {
+    campos.push(`nome = $${valores.length + 1}`);
+    valores.push(nome);
+  }
+
+  if (tamanho && tamanho !== "Selecione um tamanho:") {
+    campos.push(`tamanho = $${valores.length + 1}`);
+    valores.push(tamanho);
+  }
+
+  if (preco !== undefined && preco !== null && !isNaN(preco)) {
+    campos.push(`preco = $${valores.length + 1}`);
+    valores.push(preco);
+  }
+
+  if (campos.length === 0) {
+    return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
+  }
+
+  valores.push(idNum);
+  const query = `UPDATE pizzas SET ${campos.join(', ')} WHERE id = $${valores.length}`;
+
+  try {
+    await pool.query(query, valores);
+    return res.json({ message: 'Pizza atualizada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao atualizar pizza:', err);
+    return res.status(500).json({ error: 'Erro ao atualizar pizza.' });
+  }
+});
+
+// Excluir pizza (somente ID necessário)
+router.delete('/pizzas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para exclusão.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM pizzas WHERE id = $1', [idNum]);
+    return res.json({ message: 'Pizza excluída com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao excluir pizza:', err);
+    return res.status(500).json({ error: 'Erro ao excluir pizza.' });
+  }
+});
+
+// 🧃 ROTAS: Bebidas
+
+router.post('/bebidas', async (req, res) => {
+  const { nome, preco } = req.body;
+
+  if (!nome || preco === undefined || preco === null || isNaN(preco)) {
+    return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
+  }
+
+  try {
+    const existe = await pool.query(
+      'SELECT * FROM bebidas WHERE nome = $1',
+      [nome]
+    );
+
+    if (existe.rows.length > 0) {
+      return res.status(400).json({ error: 'Essa bebida já está cadastrada.' });
+    }
+
+    await pool.query(
+      'INSERT INTO bebidas (nome, preco) VALUES ($1, $2)',
+      [nome, preco]
+    );
+
+    return res.status(201).json({ message: 'Bebida cadastrada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao cadastrar bebida:', err);
+    return res.status(500).json({ error: 'Erro ao cadastrar bebida.' });
+  }
+});
+
+router.put('/bebidas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+  const { nome, preco } = req.body;
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para atualização.' });
+  }
+
+  const campos: string[] = [];
+  const valores: any[] = [];
+
+  if (nome) {
+    campos.push(`nome = $${valores.length + 1}`);
+    valores.push(nome);
+  }
+
+  if (preco !== undefined && preco !== null && !isNaN(preco)) {
+    campos.push(`preco = $${valores.length + 1}`);
+    valores.push(preco);
+  }
+
+  if (campos.length === 0) {
+    return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
+  }
+
+  valores.push(idNum);
+  const query = `UPDATE bebidas SET ${campos.join(', ')} WHERE id = $${valores.length}`;
+
+  try {
+    await pool.query(query, valores);
+    return res.json({ message: 'Bebida atualizada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao atualizar bebida:', err);
+    return res.status(500).json({ error: 'Erro ao atualizar bebida.' });
+  }
+});
+
+router.delete('/bebidas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para exclusão.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM bebidas WHERE id = $1', [idNum]);
+    return res.json({ message: 'Bebida excluída com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao excluir bebida:', err);
+    return res.status(500).json({ error: 'Erro ao excluir bebida.' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+// ROTAS: Sobremesas
+
+router.post('/sobremesas', async (req, res) => {
+  const { nome, preco } = req.body;
+
+  if (!nome || preco === undefined || preco === null || isNaN(preco)) {
+    return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
+  }
+
+  try {
+    const existe = await pool.query(
+      'SELECT * FROM sobremesas WHERE nome = $1',
+      [nome]
+    );
+
+    if (existe.rows.length > 0) {
+      return res.status(400).json({ error: 'Essa sobremesa já está cadastrada.' });
+    }
+
+    await pool.query(
+      'INSERT INTO sobremesas (nome, preco) VALUES ($1, $2)',
+      [nome, preco]
+    );
+
+    return res.status(201).json({ message: 'Sobremesa cadastrada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao cadastrar sobremesa:', err);
+    return res.status(500).json({ error: 'Erro ao cadastrar sobremesa.' });
+  }
+});
+
+router.put('/sobremesas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+  const { nome, preco } = req.body;
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para atualização.' });
+  }
+
+  const campos: string[] = [];
+  const valores: any[] = [];
+
+  if (nome) {
+    campos.push(`nome = $${valores.length + 1}`);
+    valores.push(nome);
+  }
+
+  if (preco !== undefined && preco !== null && !isNaN(preco)) {
+    campos.push(`preco = $${valores.length + 1}`);
+    valores.push(preco);
+  }
+
+  if (campos.length === 0) {
+    return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
+  }
+
+  valores.push(idNum);
+  const query = `UPDATE sobremesas SET ${campos.join(', ')} WHERE id = $${valores.length}`;
+
+  try {
+    await pool.query(query, valores);
+    return res.json({ message: 'Sobremesa atualizada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao atualizar sobremesa:', err);
+    return res.status(500).json({ error: 'Erro ao atualizar sobremesa.' });
+  }
+});
+
+router.delete('/sobremesas/:id', async (req, res) => {
+  const { id } = req.params;
+  const idNum = parseInt(id);
+
+  if (isNaN(idNum) || idNum <= 0) {
+    return res.status(400).json({ error: 'ID inválido para exclusão.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM sobremesas WHERE id = $1', [idNum]);
+    return res.json({ message: 'Sobremesa excluída com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao excluir sobremesa:', err);
+    return res.status(500).json({ error: 'Erro ao excluir sobremesa.' });
+  }
+});
 
 export default router;

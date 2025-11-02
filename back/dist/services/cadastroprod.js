@@ -1,0 +1,271 @@
+"use strict";
+const nomeInput = document.getElementById("nomePizza");
+const precoInput = document.getElementById("precoPizza");
+const tamanhoSelect = document.getElementById("tamanhoPizza");
+const idInput = document.getElementById("idPizza");
+const nomeBebidaInput = document.getElementById("nomeBebida");
+const precoBebidaInput = document.getElementById("precoBebida");
+const idBebidaInput = document.getElementById("idBebida");
+const nomeSobremesaInput = document.getElementById("nomeSobremesa");
+const precoSobremesaInput = document.getElementById("precoSobremesa");
+const idSobremesaInput = document.getElementById("idSobremesa");
+const btnCadastrarB = document.getElementById("cadastrabebida");
+const btnAtualizarB = document.getElementById("alterabebida");
+const btnExcluirB = document.getElementById("excluibebida");
+const btnCadastrarP = document.getElementById("cadastrapizza");
+const btnAtualizarP = document.getElementById("alterapizza");
+const btnExcluirP = document.getElementById("excluipizza");
+const btnExcluirS = document.getElementById("excluisobremesa");
+const btnCadastrarS = document.getElementById("cadastrasobremesa");
+const btnAtualizarS = document.getElementById("alterasobremesa");
+// Utilitário para converter preço corretamente
+function parsePreco(valor) {
+    const normalizado = valor.replace(',', '.');
+    const preco = parseFloat(normalizado);
+    return isNaN(preco) ? 0 : preco;
+}
+// Limpar campos do formulário
+function limparCampos() {
+    nomeInput.value = "";
+    precoInput.value = "";
+    tamanhoSelect.selectedIndex = 0;
+    idInput.value = "";
+    idBebidaInput.value = "";
+    nomeBebidaInput.value = "";
+    precoBebidaInput.value = "";
+    nomeSobremesaInput.value = "";
+    precoSobremesaInput.value = "";
+    idSobremesaInput.value = "";
+}
+// Cadastrar pizza
+btnCadastrarP.addEventListener("click", () => {
+    const nome = nomeInput.value.trim();
+    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+    const preco = parsePreco(precoInput.value);
+    const pizza = { nome, tamanho, preco };
+    fetch("http://localhost:3000/pizzas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pizza),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao cadastrar:", err);
+        alert("Erro ao cadastrar pizza.");
+    });
+});
+// Atualizar pizza
+btnAtualizarP.addEventListener("click", () => {
+    const id = parseInt(idInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para atualizar.");
+        return;
+    }
+    const nome = nomeInput.value.trim();
+    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+    const preco = parsePreco(precoInput.value);
+    const pizza = {};
+    if (nome)
+        pizza.nome = nome;
+    if (tamanho && tamanho !== "Selecione um tamanho:")
+        pizza.tamanho = tamanho;
+    if (preco > 0)
+        pizza.preco = preco;
+    if (Object.keys(pizza).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/pizzas/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pizza),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar:", err);
+        alert("Erro ao atualizar pizza.");
+    });
+});
+// Excluir pizza
+btnExcluirP.addEventListener("click", () => {
+    const id = parseInt(idInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para excluir.");
+        return;
+    }
+    fetch(`http://localhost:3000/pizzas/${id}`, {
+        method: "DELETE",
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao excluir:", err);
+        alert("Erro ao excluir pizza.");
+    });
+});
+// Cadastrar bebida
+btnCadastrarB.addEventListener("click", () => {
+    const nome = nomeBebidaInput.value.trim();
+    const preco = parsePreco(precoBebidaInput.value);
+    if (!nome || preco <= 0) {
+        alert("Preencha o nome e um preço válido.");
+        return;
+    }
+    const bebida = { nome, preco };
+    fetch("http://localhost:3000/bebidas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bebida),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao cadastrar bebida:", err);
+        alert("Erro ao cadastrar bebida.");
+    });
+});
+// Atualizar bebida
+btnAtualizarB.addEventListener("click", () => {
+    const id = parseInt(idBebidaInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para atualizar.");
+        return;
+    }
+    const nome = nomeBebidaInput.value.trim();
+    const preco = parsePreco(precoBebidaInput.value);
+    const bebida = {};
+    if (nome)
+        bebida.nome = nome;
+    if (preco > 0)
+        bebida.preco = preco;
+    if (Object.keys(bebida).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/bebidas/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bebida),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar bebida:", err);
+        alert("Erro ao atualizar bebida.");
+    });
+});
+// Excluir bebida
+btnExcluirB.addEventListener("click", () => {
+    const id = parseInt(idBebidaInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para excluir.");
+        return;
+    }
+    fetch(`http://localhost:3000/bebidas/${id}`, {
+        method: "DELETE",
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao excluir bebida:", err);
+        alert("Erro ao excluir bebida.");
+    });
+});
+// Cadastrar sobremesa
+btnCadastrarS.addEventListener("click", () => {
+    const nome = nomeSobremesaInput.value.trim();
+    const preco = parsePreco(precoSobremesaInput.value);
+    if (!nome || preco <= 0) {
+        alert("Preencha o nome e um preço válido.");
+        return;
+    }
+    const sobremesa = { nome, preco };
+    fetch("http://localhost:3000/sobremesas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sobremesa),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao cadastrar sobremesa:", err);
+        alert("Erro ao cadastrar sobremesa.");
+    });
+});
+// Atualizar sobremesa
+btnAtualizarS.addEventListener("click", () => {
+    const id = parseInt(idSobremesaInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para atualizar.");
+        return;
+    }
+    const nome = nomeSobremesaInput.value.trim();
+    const preco = parsePreco(precoSobremesaInput.value);
+    const sobremesa = {};
+    if (nome)
+        sobremesa.nome = nome;
+    if (preco > 0)
+        sobremesa.preco = preco;
+    if (Object.keys(sobremesa).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/sobremesas/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sobremesa),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar sobremesa:", err);
+        alert("Erro ao atualizar sobremesa.");
+    });
+});
+// Excluir sobremesa
+btnExcluirS.addEventListener("click", () => {
+    const id = parseInt(idSobremesaInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para excluir.");
+        return;
+    }
+    fetch(`http://localhost:3000/sobremesas/${id}`, {
+        method: "DELETE",
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao excluir sobremesa:", err);
+        alert("Erro ao excluir sobremesa.");
+    });
+});
+//# sourceMappingURL=cadastroprod.js.map
