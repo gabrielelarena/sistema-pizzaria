@@ -6,6 +6,8 @@ const bebida = document.getElementById("bebida") as HTMLSelectElement;
 const qtdBebida = document.getElementById("quantidade_bebida") as HTMLInputElement;
 const sobremesa = document.getElementById("sobremesa") as HTMLSelectElement;
 const qtdSobremesa = document.getElementById("quantidade_sobremesa") as HTMLInputElement;
+const adicional = document.getElementById('adicional') as HTMLSelectElement;
+const qtdAdicional = document.getElementById('quantidade_adicional') as HTMLInputElement;
 
 // Campos de dados do cliente
 const inputCPF = document.getElementById("cpf") as HTMLInputElement;
@@ -41,6 +43,8 @@ export interface Pedido {
   quantidade_bebida: number;
   sobremesa: string;
   quantidade_sobremesa: number;
+  adicional: string;
+  quantidade_adicional: number;
   observacoes: string;
   forma_pagamento: string;
   preco_total: number;
@@ -54,16 +58,16 @@ btnAdicionar.addEventListener("click", () => {
   const pizzaSelecionada = sabor.selectedIndex > 0;
   const bebidaSelecionada = bebida.selectedIndex > 0;
   const sobremesaSelecionada = sobremesa.selectedIndex > 0;
+  const adicionalSelecionado = adicional.selectedIndex > 0;
 
-  if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada) {
-    alert("Selecione pelo menos uma pizza, bebida ou sobremesa.");
+  if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada && !adicionalSelecionado) {
+    alert("Selecione pelo menos uma pizza, bebida, sobremesa ou adicional.");
     return;
   }
 
   const cpf = inputCPF.value.trim();
   const nome = inputNome.value.trim();
   const telefone = inputTelefone.value.trim();
-  // const endereco = inputEndereco.value.trim();
   const pagamento = inputPagamento.value.trim();
 
   const cpfValido = /^\d{11}$/.test(cpf);
@@ -106,6 +110,8 @@ btnAdicionar.addEventListener("click", () => {
     quantidade_bebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
     sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
     quantidade_sobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
+    adicional: adicionalSelecionado ? adicional.options[adicional.selectedIndex].text : "",
+    quantidade_adicional: adicionalSelecionado ? Number(qtdAdicional.value) : 0,
     observacoes: inputObservacoes.value.trim(),
     forma_pagamento: pagamento,
     preco_total: 0, // pode ser calculado depois
@@ -135,6 +141,9 @@ function atualizarBlocoNotas() {
     if (p.quantidade_sobremesa > 0 && p.sobremesa) {
       partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
     }
+    if (p.quantidade_adicional > 0 && p.adicional) {
+      partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional}`);
+    }
 
     texto += partes.join(" + ") + "</p>";
     blocoNotas.innerHTML += texto;
@@ -150,10 +159,12 @@ function atualizarBlocoNotas() {
     sobremesa.selectedIndex = 0;
     qtdSobremesa.value = "1";
 
+    adicional.selectedIndex = 0;
+    qtdAdicional.value = "1";
+
   });
 }
 
-// Gera conteúdo CSV com cliente + pedidos
 function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
   const enderecoFinal = cliente.endereco || "Retirar no local";
   const headerCliente = "CPF,Nome,Telefone,Endereço";
@@ -166,9 +177,9 @@ function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
     minute: "2-digit"
   })}`;
 
-  const headerPedido = "Pizza,Tamanho,Quantidade_Pizza,Bebida,Quantidade_Bebida,Sobremesa,Quantidade_Sobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
+  const headerPedido = "Pizza,Tamanho,Quantidade_Pizza,Bebida,Quantidade_Bebida,Sobremesa,Quantidade_Sobremesa,Adicional,Quantidade_Adicional,Observações,FormaPagamento,PreçoTotal,Cupom";
   const linhasPedido = pedidos.map(p =>
-    `${p.pizza},${p.tamanho},${p.quantidade_pizza},${p.bebida},${p.quantidade_bebida},${p.sobremesa},${p.quantidade_sobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`
+    `${p.pizza},${p.tamanho},${p.quantidade_pizza},${p.bebida},${p.quantidade_bebida},${p.sobremesa},${p.quantidade_sobremesa},${p.adicional},${p.quantidade_adicional},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`
   );
 
   return [
@@ -189,6 +200,7 @@ function gerarRecibo(cliente: Cliente, pedidos: Pedido[]): string {
     minute: "2-digit"
   })}`;
   const enderecoFinal = cliente.endereco.trim() === "" ? "Retirar no local" : cliente.endereco;
+
   let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------
 
 DATA: ${data_pedido}
@@ -202,37 +214,49 @@ ENDEREÇO: ${enderecoFinal}
   let totalItens = 0;
   let valorTotal = 0;
 
-  pedidos.forEach((p) => {
-    const partes: string[] = [];
+  const itensPedido: string[] = [];
+  const itensAdicionais: string[] = [];
 
+  pedidos.forEach((p) => {
     if (p.quantidade_pizza > 0 && p.pizza) {
-      partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
+      itensPedido.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
       totalItens += p.quantidade_pizza;
     }
 
     if (p.quantidade_bebida > 0 && p.bebida) {
-      partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
+      itensPedido.push(`${p.quantidade_bebida}x ${p.bebida}`);
       totalItens += p.quantidade_bebida;
     }
 
     if (p.quantidade_sobremesa > 0 && p.sobremesa) {
-      partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
+      itensPedido.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
       totalItens += p.quantidade_sobremesa;
     }
 
-    if (partes.length > 0) {
-      recibo += `Pedido: ${partes.join(" + ")}\n`;
+    if (p.quantidade_adicional > 0 && p.adicional) {
+      itensAdicionais.push(`${p.quantidade_adicional}x ${p.adicional}`);
+      totalItens += p.quantidade_adicional;
     }
 
     valorTotal += p.preco_total;
   });
 
+  // Exibe todos os itens como um único pedido
+  if (itensPedido.length > 0) {
+    recibo += `Pedido: ${itensPedido.join(" + ")}\n`;
+  }
+
+  // Exibe os adicionais separadamente após o pedido
+  if (itensAdicionais.length > 0) {
+    recibo += `Adicionais: ${itensAdicionais.join(" + ")}\n`;
+  }
+
   const ultimo: Pedido | undefined = pedidos[pedidos.length - 1];
 
   if (ultimo) {
     recibo += `
-FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
 OBSERVAÇÕES: ${ultimo.observacoes}
+FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
 CUPOM: ${ultimo.cupom}
 VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
 `;
@@ -241,6 +265,7 @@ VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
   recibo += `\nTOTAL DE ITENS: ${totalItens}`;
   return recibo;
 }
+
 
 
 // Cria e baixa arquivo
@@ -330,5 +355,9 @@ btnEnviar.addEventListener("click", () => {
 
   sobremesa.selectedIndex = 0;
   qtdSobremesa.value = "1";
+
+  adicional.selectedIndex = 0;
+  qtdAdicional.value = "1";
+
 
 });

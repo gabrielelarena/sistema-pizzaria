@@ -6,6 +6,8 @@ const bebida = document.getElementById("bebida");
 const qtdBebida = document.getElementById("quantidade_bebida");
 const sobremesa = document.getElementById("sobremesa");
 const qtdSobremesa = document.getElementById("quantidade_sobremesa");
+const adicional = document.getElementById('adicional');
+const qtdAdicional = document.getElementById('quantidade_adicional');
 // Campos de dados do cliente
 const inputCPF = document.getElementById("cpf");
 const inputNome = document.getElementById("nome");
@@ -24,14 +26,14 @@ btnAdicionar.addEventListener("click", () => {
     const pizzaSelecionada = sabor.selectedIndex > 0;
     const bebidaSelecionada = bebida.selectedIndex > 0;
     const sobremesaSelecionada = sobremesa.selectedIndex > 0;
-    if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada) {
-        alert("Selecione pelo menos uma pizza, bebida ou sobremesa.");
+    const adicionalSelecionado = adicional.selectedIndex > 0;
+    if (!pizzaSelecionada && !bebidaSelecionada && !sobremesaSelecionada && !adicionalSelecionado) {
+        alert("Selecione pelo menos uma pizza, bebida, sobremesa ou adicional.");
         return;
     }
     const cpf = inputCPF.value.trim();
     const nome = inputNome.value.trim();
     const telefone = inputTelefone.value.trim();
-    // const endereco = inputEndereco.value.trim();
     const pagamento = inputPagamento.value.trim();
     const cpfValido = /^\d{11}$/.test(cpf);
     const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(nome);
@@ -67,6 +69,8 @@ btnAdicionar.addEventListener("click", () => {
         quantidade_bebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
         sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
         quantidade_sobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
+        adicional: adicionalSelecionado ? adicional.options[adicional.selectedIndex].text : "",
+        quantidade_adicional: adicionalSelecionado ? Number(qtdAdicional.value) : 0,
         observacoes: inputObservacoes.value.trim(),
         forma_pagamento: pagamento,
         preco_total: 0, // pode ser calculado depois
@@ -90,6 +94,9 @@ function atualizarBlocoNotas() {
         if (p.quantidade_sobremesa > 0 && p.sobremesa) {
             partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
         }
+        if (p.quantidade_adicional > 0 && p.adicional) {
+            partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional}`);
+        }
         texto += partes.join(" + ") + "</p>";
         blocoNotas.innerHTML += texto;
         // Limpa os campos de seleção após adicionar ao bloco de notas
@@ -100,9 +107,10 @@ function atualizarBlocoNotas() {
         qtdBebida.value = "1";
         sobremesa.selectedIndex = 0;
         qtdSobremesa.value = "1";
+        adicional.selectedIndex = 0;
+        qtdAdicional.value = "1";
     });
 }
-// Gera conteúdo CSV com cliente + pedidos
 function gerarCSV(cliente, pedidos) {
     const enderecoFinal = cliente.endereco || "Retirar no local";
     const headerCliente = "CPF,Nome,Telefone,Endereço";
@@ -113,8 +121,8 @@ function gerarCSV(cliente, pedidos) {
         hour: "2-digit",
         minute: "2-digit"
     })}`;
-    const headerPedido = "Pizza,Tamanho,Quantidade_Pizza,Bebida,Quantidade_Bebida,Sobremesa,Quantidade_Sobremesa,Observações,FormaPagamento,PreçoTotal,Cupom";
-    const linhasPedido = pedidos.map(p => `${p.pizza},${p.tamanho},${p.quantidade_pizza},${p.bebida},${p.quantidade_bebida},${p.sobremesa},${p.quantidade_sobremesa},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`);
+    const headerPedido = "Pizza,Tamanho,Quantidade_Pizza,Bebida,Quantidade_Bebida,Sobremesa,Quantidade_Sobremesa,Adicional,Quantidade_Adicional,Observações,FormaPagamento,PreçoTotal,Cupom";
+    const linhasPedido = pedidos.map(p => `${p.pizza},${p.tamanho},${p.quantidade_pizza},${p.bebida},${p.quantidade_bebida},${p.sobremesa},${p.quantidade_sobremesa},${p.adicional},${p.quantidade_adicional},${p.observacoes},${p.forma_pagamento},${p.preco_total},${p.cupom}`);
     return [
         `Data do Pedido: ${dataFormatada}`,
         headerCliente,
@@ -142,30 +150,40 @@ ENDEREÇO: ${enderecoFinal}
 `;
     let totalItens = 0;
     let valorTotal = 0;
+    const itensPedido = [];
+    const itensAdicionais = [];
     pedidos.forEach((p) => {
-        const partes = [];
         if (p.quantidade_pizza > 0 && p.pizza) {
-            partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
+            itensPedido.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
             totalItens += p.quantidade_pizza;
         }
         if (p.quantidade_bebida > 0 && p.bebida) {
-            partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
+            itensPedido.push(`${p.quantidade_bebida}x ${p.bebida}`);
             totalItens += p.quantidade_bebida;
         }
         if (p.quantidade_sobremesa > 0 && p.sobremesa) {
-            partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
+            itensPedido.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
             totalItens += p.quantidade_sobremesa;
         }
-        if (partes.length > 0) {
-            recibo += `Pedido: ${partes.join(" + ")}\n`;
+        if (p.quantidade_adicional > 0 && p.adicional) {
+            itensAdicionais.push(`${p.quantidade_adicional}x ${p.adicional}`);
+            totalItens += p.quantidade_adicional;
         }
         valorTotal += p.preco_total;
     });
+    // Exibe todos os itens como um único pedido
+    if (itensPedido.length > 0) {
+        recibo += `Pedido: ${itensPedido.join(" + ")}\n`;
+    }
+    // Exibe os adicionais separadamente após o pedido
+    if (itensAdicionais.length > 0) {
+        recibo += `Adicionais: ${itensAdicionais.join(" + ")}\n`;
+    }
     const ultimo = pedidos[pedidos.length - 1];
     if (ultimo) {
         recibo += `
-FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
 OBSERVAÇÕES: ${ultimo.observacoes}
+FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
 CUPOM: ${ultimo.cupom}
 VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
 `;
@@ -248,6 +266,8 @@ btnEnviar.addEventListener("click", () => {
     qtdBebida.value = "1";
     sobremesa.selectedIndex = 0;
     qtdSobremesa.value = "1";
+    adicional.selectedIndex = 0;
+    qtdAdicional.value = "1";
 });
 export {};
 //# sourceMappingURL=pedido.js.map

@@ -8,6 +8,9 @@ const idBebidaInput = document.getElementById("idBebida") as HTMLInputElement;
 const nomeSobremesaInput = document.getElementById("nomeSobremesa") as HTMLInputElement;
 const precoSobremesaInput = document.getElementById("precoSobremesa") as HTMLInputElement;
 const idSobremesaInput = document.getElementById("idSobremesa") as HTMLInputElement;
+const nomeAdicionalInput = document.getElementById("nomeAdicional") as HTMLInputElement;
+const precoAdicionalInput = document.getElementById("precoAdicional") as HTMLInputElement;
+const idAdicionalInput = document.getElementById("idAdicional") as HTMLInputElement;
 
 const btnCadastrarB = document.getElementById("cadastrabebida") as HTMLButtonElement;
 const btnAtualizarB = document.getElementById("alterabebida") as HTMLButtonElement;
@@ -18,6 +21,9 @@ const btnExcluirP = document.getElementById("excluipizza") as HTMLButtonElement;
 const btnExcluirS = document.getElementById("excluisobremesa") as HTMLButtonElement;
 const btnCadastrarS = document.getElementById("cadastrasobremesa") as HTMLButtonElement;
 const btnAtualizarS = document.getElementById("alterasobremesa") as HTMLButtonElement;
+const btnCadastrarA = document.getElementById("cadastraadicional") as HTMLButtonElement;
+const btnAtualizarA = document.getElementById("alteraadicional") as HTMLButtonElement;
+const btnExcluirA = document.getElementById("excluiadicional") as HTMLButtonElement;
 
 // Utilitário para converter preço corretamente
 function parsePreco(valor: string): number {
@@ -38,6 +44,9 @@ function limparCampos() {
   nomeSobremesaInput.value = "";
   precoSobremesaInput.value = "";
   idSobremesaInput.value = "";
+  nomeAdicionalInput.value = "";
+  precoAdicionalInput.value = "";
+  idAdicionalInput.value = "";
 }
 
 // Cadastrar pizza
@@ -209,17 +218,6 @@ btnExcluirB.addEventListener("click", () => {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
-
 // Cadastrar sobremesa
 btnCadastrarS.addEventListener("click", () => {
   const nome = nomeSobremesaInput.value.trim();
@@ -247,7 +245,6 @@ btnCadastrarS.addEventListener("click", () => {
       alert("Erro ao cadastrar sobremesa.");
     });
 });
-
 
 
 // Atualizar sobremesa
@@ -307,3 +304,92 @@ btnExcluirS.addEventListener("click", () => {
       alert("Erro ao excluir sobremesa.");
     });
 });
+
+
+// Cadastrar adicional
+btnCadastrarA.addEventListener("click", () => {
+  const nome = nomeAdicionalInput.value.trim();
+  const preco = parsePreco(precoAdicionalInput.value);
+
+  if (!nome || preco <= 0) {
+    alert("Preencha o nome e um preço válido.");
+    return;
+  }
+
+  const adicional = { nome, preco };
+
+  fetch("http://localhost:3000/adicionais", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(adicional),
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || data.error);
+      limparCampos();
+    })
+    .catch(err => {
+      console.error("Erro ao cadastrar adicional:", err);
+      alert("Erro ao cadastrar adicional.");
+    });
+});
+
+
+// Atualizar adicional
+btnAtualizarA.addEventListener("click", () => {
+  const id = parseInt(idAdicionalInput.value);
+  if (isNaN(id) || id <= 0) {
+    alert("Informe um ID válido para atualizar.");
+    return;
+  }
+
+  const nome = nomeAdicionalInput.value.trim();
+  const preco = parsePreco(precoAdicionalInput.value);
+
+  const adicional: any = {};
+  if (nome) adicional.nome = nome;
+  if (preco > 0) adicional.preco = preco;
+
+  if (Object.keys(adicional).length === 0) {
+    alert("Preencha ao menos um campo para atualizar.");
+    return;
+  }
+
+  fetch(`http://localhost:3000/adicionais/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(adicional),
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || data.error);
+      limparCampos();
+    })
+    .catch(err => {
+      console.error("Erro ao atualizar adicional:", err);
+      alert("Erro ao atualizar adicional.");
+    });
+});
+
+// Excluir adicional
+btnExcluirA.addEventListener("click", () => {
+  const id = parseInt(idAdicionalInput.value);
+  if (isNaN(id) || id <= 0) {
+    alert("Informe um ID válido para excluir.");
+    return;
+  }
+
+  fetch(`http://localhost:3000/adicionais/${id}`, {
+    method: "DELETE",
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || data.error);
+      limparCampos();
+    })
+    .catch(err => {
+      console.error("Erro ao excluir adicional:", err);
+      alert("Erro ao excluir adicional.");
+    });
+});
+

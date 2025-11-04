@@ -12,12 +12,14 @@ export interface Pedido {
   cpf: string;
   data_pedido: string;
   pizza: string;
-  tamanho: string;
   quantidade_pizza: number;
+  tamanho: string;
   bebida: string;
   quantidade_bebida: number;
   sobremesa: string;
   quantidade_sobremesa: number;
+  adicional: string;
+  quantidade_adicional: number;
   observacoes: string;
   forma_pagamento: string;
   preco_total: number;

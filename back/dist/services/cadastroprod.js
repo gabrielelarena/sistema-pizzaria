@@ -9,6 +9,9 @@ const idBebidaInput = document.getElementById("idBebida");
 const nomeSobremesaInput = document.getElementById("nomeSobremesa");
 const precoSobremesaInput = document.getElementById("precoSobremesa");
 const idSobremesaInput = document.getElementById("idSobremesa");
+const nomeAdicionalInput = document.getElementById("nomeAdicional");
+const precoAdicionalInput = document.getElementById("precoAdicional");
+const idAdicionalInput = document.getElementById("idAdicional");
 const btnCadastrarB = document.getElementById("cadastrabebida");
 const btnAtualizarB = document.getElementById("alterabebida");
 const btnExcluirB = document.getElementById("excluibebida");
@@ -18,6 +21,9 @@ const btnExcluirP = document.getElementById("excluipizza");
 const btnExcluirS = document.getElementById("excluisobremesa");
 const btnCadastrarS = document.getElementById("cadastrasobremesa");
 const btnAtualizarS = document.getElementById("alterasobremesa");
+const btnCadastrarA = document.getElementById("cadastraadicional");
+const btnAtualizarA = document.getElementById("alteraadicional");
+const btnExcluirA = document.getElementById("excluiadicional");
 // Utilitário para converter preço corretamente
 function parsePreco(valor) {
     const normalizado = valor.replace(',', '.');
@@ -36,6 +42,9 @@ function limparCampos() {
     nomeSobremesaInput.value = "";
     precoSobremesaInput.value = "";
     idSobremesaInput.value = "";
+    nomeAdicionalInput.value = "";
+    precoAdicionalInput.value = "";
+    idAdicionalInput.value = "";
 }
 // Cadastrar pizza
 btnCadastrarP.addEventListener("click", () => {
@@ -266,6 +275,83 @@ btnExcluirS.addEventListener("click", () => {
         .catch(err => {
         console.error("Erro ao excluir sobremesa:", err);
         alert("Erro ao excluir sobremesa.");
+    });
+});
+// Cadastrar adicional
+btnCadastrarA.addEventListener("click", () => {
+    const nome = nomeAdicionalInput.value.trim();
+    const preco = parsePreco(precoAdicionalInput.value);
+    if (!nome || preco <= 0) {
+        alert("Preencha o nome e um preço válido.");
+        return;
+    }
+    const adicional = { nome, preco };
+    fetch("http://localhost:3000/adicionais", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(adicional),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao cadastrar adicional:", err);
+        alert("Erro ao cadastrar adicional.");
+    });
+});
+// Atualizar adicional
+btnAtualizarA.addEventListener("click", () => {
+    const id = parseInt(idAdicionalInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para atualizar.");
+        return;
+    }
+    const nome = nomeAdicionalInput.value.trim();
+    const preco = parsePreco(precoAdicionalInput.value);
+    const adicional = {};
+    if (nome)
+        adicional.nome = nome;
+    if (preco > 0)
+        adicional.preco = preco;
+    if (Object.keys(adicional).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/adicionais/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(adicional),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar adicional:", err);
+        alert("Erro ao atualizar adicional.");
+    });
+});
+// Excluir adicional
+btnExcluirA.addEventListener("click", () => {
+    const id = parseInt(idAdicionalInput.value);
+    if (isNaN(id) || id <= 0) {
+        alert("Informe um ID válido para excluir.");
+        return;
+    }
+    fetch(`http://localhost:3000/adicionais/${id}`, {
+        method: "DELETE",
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao excluir adicional:", err);
+        alert("Erro ao excluir adicional.");
     });
 });
 //# sourceMappingURL=cadastroprod.js.map
