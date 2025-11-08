@@ -8,60 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import express from 'express';
-import { pool } from './db.js';
-const router = express.Router();
-//
-// 📦 ROTA: Enviar pedido
-//
-router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cliente, pedidos } = req.body;
-    console.log("Recebido do frontend:", { cliente, pedidos });
-    console.log("Dados recebidos:", JSON.stringify(req.body, null, 2));
-    try {
-        const clienteResult = yield pool.query(`INSERT INTO clientes (cpf, nome, telefone, endereco)
-       VALUES ($1, $2, $3, $4) RETURNING id`, [cliente.cpf, cliente.nome, cliente.telefone, cliente.endereco]);
-        const clienteId = clienteResult.rows[0].id;
-        for (const p of pedidos) {
-            console.log("Inserindo pedido:", p);
-            if (!clienteId) {
-                throw new Error("clienteId está indefinido");
-            }
-            yield pool.query(`INSERT INTO pedidos (
-      cliente_id, cpf, data_pedido, pizza, quantidade_pizza, tamanho,
-      bebida, quantidade_bebida, sobremesa, quantidade_sobremesa,
-      adicional, quantidade_adicional, observacoes, forma_pagamento, preco_total, cupom
-    ) VALUES (
-      $1, $2, TO_TIMESTAMP($3, 'DD/MM/YYYY - HH24:MI'), $4, $5, $6,
-      $7, $8, $9, $10,
-      $11, $12, $13, $14, $15, $16
-    )`, [
-                clienteId,
-                p.cpf,
-                p.data_pedido,
-                p.pizza,
-                p.quantidade_pizza,
-                p.tamanho,
-                p.bebida,
-                p.quantidade_bebida,
-                p.sobremesa,
-                p.quantidade_sobremesa,
-                p.adicional,
-                p.quantidade_adicional,
-                p.observacoes,
-                p.forma_pagamento,
-                p.preco_total,
-                p.cupom,
-            ]);
-        }
-        return res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
-    }
-    catch (error) {
-        console.error('Erro ao salvar pedido:', error);
-        return res.status(500).json({ error: 'Erro ao salvar pedido.' });
-    }
-}));
-// Cadastrar pizza (nome, tamanho e preco obrigatórios)
-router.post('/pizzas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+import { pool } from '../data/db.js';
+const routerprod = express.Router();
+// ROTAS: Pizza
+routerprod.post('/pizzas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, tamanho, preco } = req.body;
     if (!nome || !tamanho || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome, tamanho e preço.' });
@@ -79,8 +29,7 @@ router.post('/pizzas', (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(500).json({ error: 'Erro ao cadastrar pizza.' });
     }
 }));
-// Atualizar pizza (id obrigatório, campos opcionais)
-router.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     const { nome, tamanho, preco } = req.body;
@@ -115,8 +64,7 @@ router.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, functi
         return res.status(500).json({ error: 'Erro ao atualizar pizza.' });
     }
 }));
-// Excluir pizza (somente ID necessário)
-router.delete('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.delete('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     if (isNaN(idNum) || idNum <= 0) {
@@ -131,8 +79,8 @@ router.delete('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(500).json({ error: 'Erro ao excluir pizza.' });
     }
 }));
-// 🧃 ROTAS: Bebidas
-router.post('/bebidas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// ROTAS: Bebidas
+routerprod.post('/bebidas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
@@ -150,7 +98,7 @@ router.post('/bebidas', (req, res) => __awaiter(void 0, void 0, void 0, function
         return res.status(500).json({ error: 'Erro ao cadastrar bebida.' });
     }
 }));
-router.put('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.put('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     const { nome, preco } = req.body;
@@ -181,7 +129,7 @@ router.put('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, funct
         return res.status(500).json({ error: 'Erro ao atualizar bebida.' });
     }
 }));
-router.delete('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.delete('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     if (isNaN(idNum) || idNum <= 0) {
@@ -197,7 +145,7 @@ router.delete('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 // ROTAS: Sobremesas
-router.post('/sobremesas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.post('/sobremesas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
@@ -215,7 +163,7 @@ router.post('/sobremesas', (req, res) => __awaiter(void 0, void 0, void 0, funct
         return res.status(500).json({ error: 'Erro ao cadastrar sobremesa.' });
     }
 }));
-router.put('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.put('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     const { nome, preco } = req.body;
@@ -246,7 +194,7 @@ router.put('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(500).json({ error: 'Erro ao atualizar sobremesa.' });
     }
 }));
-router.delete('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.delete('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     if (isNaN(idNum) || idNum <= 0) {
@@ -262,7 +210,7 @@ router.delete('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0,
     }
 }));
 // ROTAS: Adicionais
-router.post('/adicionais', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.post('/adicionais', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
@@ -280,7 +228,7 @@ router.post('/adicionais', (req, res) => __awaiter(void 0, void 0, void 0, funct
         return res.status(500).json({ error: 'Erro ao cadastrar adicional.' });
     }
 }));
-router.put('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.put('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     const { nome, preco } = req.body;
@@ -311,7 +259,7 @@ router.put('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(500).json({ error: 'Erro ao atualizar adicional.' });
     }
 }));
-router.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+routerprod.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     if (isNaN(idNum) || idNum <= 0) {
@@ -326,72 +274,5 @@ router.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0,
         return res.status(500).json({ error: 'Erro ao excluir adicional.' });
     }
 }));
-// ROTAS: Clientes
-router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cpf, nome, telefone, endereco } = req.body;
-    if (!cpf || !nome || !telefone || !endereco) {
-        return res.status(400).json({ error: 'Todos os campos são obrigatórios: CPF, nome, telefone e endereço.' });
-    }
-    try {
-        const existe = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
-        if (existe.rows.length > 0) {
-            return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
-        }
-        yield pool.query('INSERT INTO clientes (cpf, nome, telefone, endereco) VALUES ($1, $2, $3, $4)', [cpf, nome, telefone, endereco]);
-        return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
-    }
-    catch (err) {
-        console.error('Erro ao cadastrar cliente:', err);
-        return res.status(500).json({ error: 'Erro ao cadastrar cliente.' });
-    }
-}));
-router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cpf } = req.params;
-    const { nome, telefone, endereco } = req.body;
-    if (!cpf) {
-        return res.status(400).json({ error: 'CPF inválido para atualização.' });
-    }
-    const campos = [];
-    const valores = [];
-    if (nome) {
-        campos.push(`nome = $${valores.length + 1}`);
-        valores.push(nome);
-    }
-    if (telefone) {
-        campos.push(`telefone = $${valores.length + 1}`);
-        valores.push(telefone);
-    }
-    if (endereco) {
-        campos.push(`endereco = $${valores.length + 1}`);
-        valores.push(endereco);
-    }
-    if (campos.length === 0) {
-        return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
-    }
-    valores.push(cpf);
-    const query = `UPDATE clientes SET ${campos.join(', ')} WHERE cpf = $${valores.length}`;
-    try {
-        yield pool.query(query, valores);
-        return res.json({ message: 'Cliente atualizado com sucesso!' });
-    }
-    catch (err) {
-        console.error('Erro ao atualizar cliente:', err);
-        return res.status(500).json({ error: 'Erro ao atualizar cliente.' });
-    }
-}));
-router.delete('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cpf } = req.params;
-    if (!cpf) {
-        return res.status(400).json({ error: 'CPF inválido para exclusão.' });
-    }
-    try {
-        yield pool.query('DELETE FROM clientes WHERE cpf = $1', [cpf]);
-        return res.json({ message: 'Cliente excluído com sucesso!' });
-    }
-    catch (err) {
-        console.error('Erro ao excluir cliente:', err);
-        return res.status(500).json({ error: 'Erro ao excluir cliente.' });
-    }
-}));
-export default router;
-//# sourceMappingURL=routes.js.map
+export default routerprod;
+//# sourceMappingURL=routesprod.js.map

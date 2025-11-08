@@ -1,78 +1,11 @@
 import express from 'express';
-import { pool } from './db.js';
-import { Cliente, Pedido } from './models.js';
+import { pool } from '../data/db.js';
 
-const router = express.Router();
+const routerprod = express.Router();
 
-//
-// 📦 ROTA: Enviar pedido
-//
-router.post('/enviar-pedido', async (req, res) => {
-  const { cliente, pedidos }: { cliente: Cliente; pedidos: Pedido[] } = req.body;
+// ROTAS: Pizza
 
-  console.log("Recebido do frontend:", { cliente, pedidos });
-  console.log("Dados recebidos:", JSON.stringify(req.body, null, 2));
-
-
-  try {
-    const clienteResult = await pool.query(
-      `INSERT INTO clientes (cpf, nome, telefone, endereco)
-       VALUES ($1, $2, $3, $4) RETURNING id`,
-      [cliente.cpf, cliente.nome, cliente.telefone, cliente.endereco]
-    );
-
-    const clienteId = clienteResult.rows[0].id;
-
-    for (const p of pedidos) {
-      console.log("Inserindo pedido:", p);
-      if (!clienteId) {
-        throw new Error("clienteId está indefinido");
-      }
-
-
-      await pool.query(
-        `INSERT INTO pedidos (
-      cliente_id, cpf, data_pedido, pizza, quantidade_pizza, tamanho,
-      bebida, quantidade_bebida, sobremesa, quantidade_sobremesa,
-      adicional, quantidade_adicional, observacoes, forma_pagamento, preco_total, cupom
-    ) VALUES (
-      $1, $2, TO_TIMESTAMP($3, 'DD/MM/YYYY - HH24:MI'), $4, $5, $6,
-      $7, $8, $9, $10,
-      $11, $12, $13, $14, $15, $16
-    )`,
-        [
-          clienteId,
-          p.cpf,
-          p.data_pedido,
-          p.pizza,
-          p.quantidade_pizza,
-          p.tamanho,
-          p.bebida,
-          p.quantidade_bebida,
-          p.sobremesa,
-          p.quantidade_sobremesa,
-          p.adicional,
-          p.quantidade_adicional,
-          p.observacoes,
-          p.forma_pagamento,
-          p.preco_total,
-          p.cupom,
-        ]
-      );
-    }
-
-
-    return res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
-  } catch (error) {
-    console.error('Erro ao salvar pedido:', error);
-    return res.status(500).json({ error: 'Erro ao salvar pedido.' });
-  }
-});
-
-
-
-// Cadastrar pizza (nome, tamanho e preco obrigatórios)
-router.post('/pizzas', async (req, res) => {
+routerprod.post('/pizzas', async (req, res) => {
   const { nome, tamanho, preco } = req.body;
 
   if (!nome || !tamanho || preco === undefined || preco === null || isNaN(preco)) {
@@ -101,8 +34,7 @@ router.post('/pizzas', async (req, res) => {
   }
 });
 
-// Atualizar pizza (id obrigatório, campos opcionais)
-router.put('/pizzas/:id', async (req, res) => {
+routerprod.put('/pizzas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
   const { nome, tamanho, preco } = req.body;
@@ -145,8 +77,7 @@ router.put('/pizzas/:id', async (req, res) => {
   }
 });
 
-// Excluir pizza (somente ID necessário)
-router.delete('/pizzas/:id', async (req, res) => {
+routerprod.delete('/pizzas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
 
@@ -163,9 +94,9 @@ router.delete('/pizzas/:id', async (req, res) => {
   }
 });
 
-// 🧃 ROTAS: Bebidas
+// ROTAS: Bebidas
 
-router.post('/bebidas', async (req, res) => {
+routerprod.post('/bebidas', async (req, res) => {
   const { nome, preco } = req.body;
 
   if (!nome || preco === undefined || preco === null || isNaN(preco)) {
@@ -194,7 +125,7 @@ router.post('/bebidas', async (req, res) => {
   }
 });
 
-router.put('/bebidas/:id', async (req, res) => {
+routerprod.put('/bebidas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
   const { nome, preco } = req.body;
@@ -232,7 +163,7 @@ router.put('/bebidas/:id', async (req, res) => {
   }
 });
 
-router.delete('/bebidas/:id', async (req, res) => {
+routerprod.delete('/bebidas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
 
@@ -249,18 +180,9 @@ router.delete('/bebidas/:id', async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
 // ROTAS: Sobremesas
 
-router.post('/sobremesas', async (req, res) => {
+routerprod.post('/sobremesas', async (req, res) => {
   const { nome, preco } = req.body;
 
   if (!nome || preco === undefined || preco === null || isNaN(preco)) {
@@ -289,7 +211,7 @@ router.post('/sobremesas', async (req, res) => {
   }
 });
 
-router.put('/sobremesas/:id', async (req, res) => {
+routerprod.put('/sobremesas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
   const { nome, preco } = req.body;
@@ -327,7 +249,7 @@ router.put('/sobremesas/:id', async (req, res) => {
   }
 });
 
-router.delete('/sobremesas/:id', async (req, res) => {
+routerprod.delete('/sobremesas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
 
@@ -347,7 +269,7 @@ router.delete('/sobremesas/:id', async (req, res) => {
 
 // ROTAS: Adicionais
 
-router.post('/adicionais', async (req, res) => {
+routerprod.post('/adicionais', async (req, res) => {
   const { nome, preco } = req.body;
 
   if (!nome || preco === undefined || preco === null || isNaN(preco)) {
@@ -376,7 +298,7 @@ router.post('/adicionais', async (req, res) => {
   }
 });
 
-router.put('/adicionais/:id', async (req, res) => {
+routerprod.put('/adicionais/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
   const { nome, preco } = req.body;
@@ -414,7 +336,7 @@ router.put('/adicionais/:id', async (req, res) => {
   }
 });
 
-router.delete('/adicionais/:id', async (req, res) => {
+routerprod.delete('/adicionais/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
 
@@ -431,93 +353,4 @@ router.delete('/adicionais/:id', async (req, res) => {
   }
 });
 
-// ROTAS: Clientes
-
-router.post('/clientes', async (req, res) => {
-  const { cpf, nome, telefone, endereco } = req.body;
-
-  if (!cpf || !nome || !telefone || !endereco) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios: CPF, nome, telefone e endereço.' });
-  }
-
-  try {
-    const existe = await pool.query(
-      'SELECT * FROM clientes WHERE cpf = $1',
-      [cpf]
-    );
-
-    if (existe.rows.length > 0) {
-      return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
-    }
-
-    await pool.query(
-      'INSERT INTO clientes (cpf, nome, telefone, endereco) VALUES ($1, $2, $3, $4)',
-      [cpf, nome, telefone, endereco]
-    );
-
-    return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
-  } catch (err) {
-    console.error('Erro ao cadastrar cliente:', err);
-    return res.status(500).json({ error: 'Erro ao cadastrar cliente.' });
-  }
-});
-
-router.put('/clientes/:cpf', async (req, res) => {
-  const { cpf } = req.params;
-  const { nome, telefone, endereco } = req.body;
-
-  if (!cpf) {
-    return res.status(400).json({ error: 'CPF inválido para atualização.' });
-  }
-
-  const campos: string[] = [];
-  const valores: any[] = [];
-
-  if (nome) {
-    campos.push(`nome = $${valores.length + 1}`);
-    valores.push(nome);
-  }
-
-  if (telefone) {
-    campos.push(`telefone = $${valores.length + 1}`);
-    valores.push(telefone);
-  }
-
-  if (endereco) {
-    campos.push(`endereco = $${valores.length + 1}`);
-    valores.push(endereco);
-  }
-
-  if (campos.length === 0) {
-    return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
-  }
-
-  valores.push(cpf);
-  const query = `UPDATE clientes SET ${campos.join(', ')} WHERE cpf = $${valores.length}`;
-
-  try {
-    await pool.query(query, valores);
-    return res.json({ message: 'Cliente atualizado com sucesso!' });
-  } catch (err) {
-    console.error('Erro ao atualizar cliente:', err);
-    return res.status(500).json({ error: 'Erro ao atualizar cliente.' });
-  }
-});
-
-router.delete('/clientes/:cpf', async (req, res) => {
-  const { cpf } = req.params;
-
-  if (!cpf) {
-    return res.status(400).json({ error: 'CPF inválido para exclusão.' });
-  }
-
-  try {
-    await pool.query('DELETE FROM clientes WHERE cpf = $1', [cpf]);
-    return res.json({ message: 'Cliente excluído com sucesso!' });
-  } catch (err) {
-    console.error('Erro ao excluir cliente:', err);
-    return res.status(500).json({ error: 'Erro ao excluir cliente.' });
-  }
-});
-
-export default router;
+export default routerprod;

@@ -420,11 +420,16 @@ btnCadastrarC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   const nome = nomeClienteInput.value.trim();
   const telefone = telefoneClienteInput.value.trim();
-  const endereco = enderecoClienteInput.value.trim();
+  let endereco = enderecoClienteInput.value.trim();
 
-  if (!cpf || !nome || !telefone || !endereco) {
-    alert("Preencha todos os campos para cadastrar o cliente.");
+  if (!cpf || !nome || !telefone) {
+    alert("Preencha CPF, nome e telefone para cadastrar o cliente.");
     return;
+  }
+
+  // Aplica valor padrão se o campo estiver vazio
+  if (!endereco) {
+    endereco = "Retirar no local";
   }
 
   const cliente = { cpf, nome, telefone, endereco };
@@ -446,7 +451,7 @@ btnCadastrarC.addEventListener("click", () => {
 });
 
 
-// Atualizar adicional
+// Atualizar cliente
 btnAtualizarC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   if (!cpf) {
@@ -485,7 +490,7 @@ btnAtualizarC.addEventListener("click", () => {
 });
 
 
-// Excluir adicional
+// Excluir cliente
 btnExcluirC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   if (!cpf) {
@@ -506,89 +511,3 @@ btnExcluirC.addEventListener("click", () => {
       alert("Erro ao excluir cliente.");
     });
 });
-
-let nomeValor = "";
-let relatorioTxt = "";
-
-btnProcurarProd.addEventListener("click", () => {
-  produtoDiv.innerHTML = "";
-  listaVendas.innerHTML = "";
-  nomeValor = NomeProduto.value.trim();
-  const tipoValor = produtoEsc.value;
-  const inicioValor = DataInicio.value;
-  const fimValor = DataFim.value;
-
-  if (!tipoValor || !nomeValor || !inicioValor || !fimValor) {
-    alert("Preencha todos os campos.");
-    return;
-  }
-
-  fetch(`http://localhost:3000/produtos-vendidos?tipo=${tipoValor}&nome=${nomeValor}&inicio=${inicioValor}&fim=${fimValor}`)
-    .then(res => res.json())
-    .then(data => {
-      const campo = tipoToCampo(tipoValor);
-      relatorioTxt = data.txt;
-
-      // Calcula o total de itens vendidos
-      let totalItens = 0;
-      data.vendas.forEach((v: any) => {
-        totalItens += v[`quantidade_${campo}`];
-      });
-
-      // Exibe os dados no HTML
-      listaVendas.innerHTML = "";
-      data.vendas.forEach((v: any) => {
-        const item = document.createElement("p");
-        item.textContent = `Data: ${new Date(v.data_pedido).toLocaleString()} | Quantidade: ${v[`quantidade_${campo}`]}`;
-        item.style.marginBottom = "10px";
-        listaVendas.appendChild(item);
-      });
-
-      produtoDiv.innerHTML = `
-        <h3>Histórico de vendas de ${nomeValor}</h3>
-        <pre>${relatorioTxt}</pre>
-        <p><strong>Total de itens vendidos:</strong> ${totalItens}</p>
-      `;
-
-      limparRelatorioBtn.style.display = "block";
-      const relatorioFinal = `${relatorioTxt}\n\nTotal de itens vendidos: ${totalItens}`;
-
-
-      // ✅ Gera e baixa o arquivo automaticamente
-      const blob = new Blob([relatorioFinal], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `relatorio-${nomeValor}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    })
-    .catch(err => {
-      console.error("Erro ao buscar produtos vendidos:", err);
-      alert("Erro ao buscar produtos vendidos.");
-    });
-
-  ;
-
-  produtoEsc.selectedIndex = 0; // volta para "Selecione um produto"
-  NomeProduto.value = "";
-  DataInicio.value = "";
-  DataFim.value = "";
-});
-
-function tipoToCampo(tipo: string): string {
-  return {
-    '1': 'pizza',
-    '2': 'bebida',
-    '3': 'sobremesa',
-    '4': 'adicional'
-  }[tipo] || '';
-}
-
-limparRelatorioBtn.addEventListener("click", () => {
-  produtoDiv.innerHTML = ""; // limpa o conteúdo do relatório
-  limparRelatorioBtn.style.display = "none"; // esconde o botão junto
-});
-
