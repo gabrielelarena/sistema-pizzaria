@@ -326,5 +326,72 @@ router.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0,
         return res.status(500).json({ error: 'Erro ao excluir adicional.' });
     }
 }));
+// ROTAS: Clientes
+router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cpf, nome, telefone, endereco } = req.body;
+    if (!cpf || !nome || !telefone || !endereco) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios: CPF, nome, telefone e endereço.' });
+    }
+    try {
+        const existe = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
+        if (existe.rows.length > 0) {
+            return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
+        }
+        yield pool.query('INSERT INTO clientes (cpf, nome, telefone, endereco) VALUES ($1, $2, $3, $4)', [cpf, nome, telefone, endereco]);
+        return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
+    }
+    catch (err) {
+        console.error('Erro ao cadastrar cliente:', err);
+        return res.status(500).json({ error: 'Erro ao cadastrar cliente.' });
+    }
+}));
+router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cpf } = req.params;
+    const { nome, telefone, endereco } = req.body;
+    if (!cpf) {
+        return res.status(400).json({ error: 'CPF inválido para atualização.' });
+    }
+    const campos = [];
+    const valores = [];
+    if (nome) {
+        campos.push(`nome = $${valores.length + 1}`);
+        valores.push(nome);
+    }
+    if (telefone) {
+        campos.push(`telefone = $${valores.length + 1}`);
+        valores.push(telefone);
+    }
+    if (endereco) {
+        campos.push(`endereco = $${valores.length + 1}`);
+        valores.push(endereco);
+    }
+    if (campos.length === 0) {
+        return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });
+    }
+    valores.push(cpf);
+    const query = `UPDATE clientes SET ${campos.join(', ')} WHERE cpf = $${valores.length}`;
+    try {
+        yield pool.query(query, valores);
+        return res.json({ message: 'Cliente atualizado com sucesso!' });
+    }
+    catch (err) {
+        console.error('Erro ao atualizar cliente:', err);
+        return res.status(500).json({ error: 'Erro ao atualizar cliente.' });
+    }
+}));
+router.delete('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cpf } = req.params;
+    if (!cpf) {
+        return res.status(400).json({ error: 'CPF inválido para exclusão.' });
+    }
+    try {
+        yield pool.query('DELETE FROM clientes WHERE cpf = $1', [cpf]);
+        return res.json({ message: 'Cliente excluído com sucesso!' });
+    }
+    catch (err) {
+        console.error('Erro ao excluir cliente:', err);
+        return res.status(500).json({ error: 'Erro ao excluir cliente.' });
+    }
+}));
 export default router;
 //# sourceMappingURL=routes.js.map

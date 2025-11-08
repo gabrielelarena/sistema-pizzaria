@@ -103,14 +103,14 @@ btnAdicionar.addEventListener("click", () => {
   const novoPedido: Pedido = {
     data_pedido,
     cpf,
-    pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
-    tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
+    pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex]?.text ?? "" : "",
+    tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex]?.text ?? "" : "",
     quantidade_pizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
-    bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
+    bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex]?.text ?? "" : "",
     quantidade_bebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
-    sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
+    sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex]?.text ?? "" : "",
     quantidade_sobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
-    adicional: adicionalSelecionado ? adicional.options[adicional.selectedIndex].text : "",
+    adicional: adicionalSelecionado ? adicional.options[adicional.selectedIndex]?.text ?? "" : "",
     quantidade_adicional: adicionalSelecionado ? Number(qtdAdicional.value) : 0,
     observacoes: inputObservacoes.value.trim(),
     forma_pagamento: pagamento,
@@ -359,5 +359,6 @@ btnEnviar.addEventListener("click", () => {
   adicional.selectedIndex = 0;
   qtdAdicional.value = "1";
 
+   blocoNotas.innerHTML = "";
 
 });

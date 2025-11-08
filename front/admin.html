@@ -52,18 +52,46 @@
                 </ul>
 
                 <div class="text-end">
-                    <a href="cadastro.html"><button type="button" class="btn btn-outline-light me-2">Fazer
-                            Pedido</button></a>
+                    <a href="consulta.html"><button type="button"
+                            class="btn btn-outline-light me-2">Consultas</button></a>
                     <a href="index.html"><button type="button" class="btn btn-outline-light me-2">Cardápio</button></a>
-                    <a href="historico.html"><button type="button" class="btn btn-outline-light me-2">Meu
+                    <a href="historico.html"><button type="button" class="btn btn-outline-light me-2">
                             Histórico</button></a>
                 </div>
+
             </div>
         </div>
     </header>
-    <h3 class="text-center pt-5 p-3">Cadastro de Pizzas</h3>
+    <nav class="navbar navbar-expand-lg" style="background-color: #eca442;">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white fs-5" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Escolher Forms
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#pizza">Cadastro Pizza</a></li>
+                            <li><a class="dropdown-item" href="#bebida">Cadastro Bebida</a></li>
+                            <li><a class="dropdown-item" href="#sobremesa">Cadastro Sobremesa</a></li>
+                            <li><a class="dropdown-item" href="#adicional">Cadastro Adicional</a></li>
+                            <li><a class="dropdown-item" href="#cliente">Cadastro Cliente</a></li>
+                            <li><a class="dropdown-item" href="#produto">Histórico de Vendas</a></li>
+                        </ul>
+                    </li>
+            </div>
+        </div>
+    </nav>
 
-    <div class="input-group m-auto p-3 quadro">
+
+    <div class="input-group m-auto p-3 quadro w-50 mt-5">
+        <h3 class="text-center p-2 m-auto" id="pizza">Cadastro de Pizzas</h3>
         <!-- ID do Produto -->
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">ID do Produto:</span>
@@ -95,18 +123,21 @@
                 <option value="Grande">Grande</option>
             </select>
         </div>
+
+        <div class="d-flex m-auto w-50 pt-4">
+            <button type="button" class="btn btn-dark m-auto d-block " id="excluipizza">Excluir</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="cadastrapizza">Cadastrar</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="alterapizza">Alterar</button>
+        </div>
+
     </div>
 
+    <br><br>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="excluipizza">Excluir</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="cadastrapizza">Cadastrar</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="alterapizza">Alterar</button>
-    </div>
+    <div class="input-group m-auto p-3 quadro w-50 mt-5 ">
+        <h3 class="text-center m-auto p-2" id="bebida">Cadastro de Bebidas</h3>
 
-    <h3 class="text-center pt-5 p-3">Cadastro de Bebidas</h3>
-    <div class="input-group p-3 quadro">
-         <div class="input-group m-auto p-3">
+        <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">ID do Produto:</span>
             <input type="text" id="idBebida" class="form-control" placeholder="Insira o ID do produto"
                 aria-label="ID da Bebida">
@@ -119,17 +150,20 @@
             <span class="input-group-text bg-dark text-light">Preço:</span>
             <input type="number" aria-label="Preço Bebidas" class="form-control" id="precoBebida">
         </div>
+
+        <div class="d-flex m-auto w-50 pt-4">
+            <button type="button" class="btn btn-dark m-auto d-block" id="excluibebida">Excluir</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="cadastrabebida">Cadastrar</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="alterabebida">Alterar</button>
+        </div>
     </div>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="excluibebida">Excluir</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="cadastrabebida">Cadastrar</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="alterabebida">Alterar</button>
-    </div>
+    <br><br>
 
-    <h3 class="text-center pt-5 p-3">Cadastro de Sobremesas</h3>
-    <div class="input-group p-3 quadro">
-         <div class="input-group m-auto p-3">
+
+    <div class="input-group m-auto p-3 quadro w-50 mt-5 ">
+        <h3 class="text-center m-auto p-2" id="sobremesa">Cadastro de Sobremesas</h3>
+        <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">ID do Produto:</span>
             <input type="text" id="idSobremesa" class="form-control" placeholder="Insira o ID do produto"
                 aria-label="ID da Sobremesa">
@@ -142,17 +176,20 @@
             <span class="input-group-text bg-dark text-light">Preço:</span>
             <input type="number" aria-label="Preço Sobremesa" class="form-control" id="precoSobremesa">
         </div>
+
+        <div class="d-flex m-auto w-50 pt-4">
+            <button type="button" class="btn btn-dark m-auto d-block" id="excluisobremesa">Excluir</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="cadastrasobremesa">Cadastrar</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="alterasobremesa">Alterar</button>
+        </div>
+
     </div>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="excluisobremesa">Excluir</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="cadastrasobremesa">Cadastrar</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="alterasobremesa">Alterar</button>
-    </div>
+    <br><br>
 
-     <h3 class="text-center pt-5 p-3">Cadastro de Adicionais</h3>
-    <div class="input-group p-3 quadro">
-         <div class="input-group m-auto p-3">
+    <div class="input-group p-3 quadro w-50 mt-5">
+        <h3 class="text-center m-auto p-2" id="adicional">Cadastro de Adicionais</h3>
+        <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">ID do Produto:</span>
             <input type="text" id="idAdicional" class="form-control" placeholder="Insira o ID do produto"
                 aria-label="ID do Adicional">
@@ -165,60 +202,82 @@
             <span class="input-group-text bg-dark text-light">Preço:</span>
             <input type="number" aria-label="Preço Adicional" class="form-control" id="precoAdicional">
         </div>
+
+        <div class="d-flex m-auto w-50 pt-4">
+            <button type="button" class="btn btn-dark m-auto d-block" id="excluiadicional">Excluir</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="cadastraadicional">Cadastrar</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="alteraadicional">Alterar</button>
+        </div>
     </div>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="excluiadicional">Excluir</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="cadastraadicional">Cadastrar</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="alteraadicional">Alterar</button>
-    </div>
+    <br><br>
 
-    <h3 class="text-center pt-5 p-3">Editar Clientes</h3>
-    <div class="input-group m-auto p-3 quadro">
+    <div class="input-group m-auto p-3 quadro w-50 mt-5">
+        <h3 class="text-center m-auto p-2" id="cliente">Cadastro de Clientes</h3>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">CPF</span>
-            <input type="text" aria-label="Produto" class="form-control">
+            <input type="text" class="form-control" id="CpfCliente">
         </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Nome do Cliente:</span>
-            <input type="text" aria-label="Produto" class="form-control">
+            <input type="text" class="form-control" id="NomeCliente">
         </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Telefone:</span>
-            <input type="number" aria-label="Produto" class="form-control">
+            <input type="number" class="form-control" id="TelefoneCliente">
         </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Endereço:</span>
-            <input type="text" aria-label="Produto" class="form-control">
+            <input type="text" class="form-control" id="EnderecoCliente">
+        </div>
+
+        <div class="d-flex m-auto w-50 pt-4">
+            <button type="button" class="btn btn-dark m-auto d-block" id="excluicliente">Excluir</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="cadastracliente">Cadastrar</button>
+            <button type="button" class="btn btn-dark m-auto d-block" id="alteracliente">Alterar</button>
         </div>
     </div>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="">Excluir</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="">Cadastrar</button>
-        <button type="button" class="btn btn-dark m-auto d-block" id="">Alterar</button>
-    </div>
+    <br><br>
 
-    <h3 class="text-center pt-5 p-3">Histórico de produtos vendidos</h3>
-    <div class="input-group p-3 quadro">
+
+    <h3 class="text-center pt-5 p-3" id="produto">Histórico de produtos vendidos</h3>
+    <div class="input-group p-3 quadro w-50">
+        <div class="input-group m-auto p-3">
+            <span class="input-group-text bg-dark text-light">Escolha de qual produto:</span>
+            <select class="form-select" id="produtoesc">
+                <option selected>Selecione um produto</option>
+                <option value="1">Pizzas</option>
+                <option value="2">Bebidas</option>
+                <option value="3">Sobremesas</option>
+                <option value="4">Adicionais</option>
+            </select>
+        </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Nome do Produto:</span>
-            <input type="text" aria-label="Produto" class="form-control">
+            <input type="text" class="form-control" id="NomeProduto">
         </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Escolha a data inicial:</span>
-            <input type="date" aria-label="Produto" class="form-control">
+            <input type="date" class="form-control" id="DataInicio">
         </div>
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Escolha a data final:</span>
-            <input type="date" aria-label="Produto" class="form-control">
+            <input type="date" class="form-control" id="DataFim">
         </div>
-        <div class="ps-3 pt-2 p-3" id="">Quantidade:</div>
+        <span></span>
+
+        <div class="m-auto d-block">
+            <button type="button" class="btn btn-dark m-auto d-block" id="procurarprod">Procurar</button>
+        </div>
     </div>
 
-    <div class="d-flex m-auto w-25 pt-4">
-        <button type="button" class="btn btn-dark m-auto d-block" id="">Procurar</button>
+    <div id="produtodevs" class="container mt-4 p-3 rounded m-auto d-block w-50">
+        <div id="lista-vendas" class="mt-3"></div>
     </div>
+    <button id="limparRelatorio" class="btn btn-outline-danger mt-3 m-auto text-center" style="display: none;">
+        Limpar relatório
+    </button>
 
     <div class="container">
         <footer class="py-3 my-4">

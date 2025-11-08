@@ -23,6 +23,7 @@ const btnAdicionar = document.getElementById("btnAdicionar");
 const btnEnviar = document.getElementById("btnEnviar");
 const pedidos = [];
 btnAdicionar.addEventListener("click", () => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     const pizzaSelecionada = sabor.selectedIndex > 0;
     const bebidaSelecionada = bebida.selectedIndex > 0;
     const sobremesaSelecionada = sobremesa.selectedIndex > 0;
@@ -62,14 +63,14 @@ btnAdicionar.addEventListener("click", () => {
     const novoPedido = {
         data_pedido,
         cpf,
-        pizza: pizzaSelecionada ? sabor.options[sabor.selectedIndex].text : "",
-        tamanho: pizzaSelecionada ? tamanho.options[tamanho.selectedIndex].text : "",
+        pizza: pizzaSelecionada ? (_b = (_a = sabor.options[sabor.selectedIndex]) === null || _a === void 0 ? void 0 : _a.text) !== null && _b !== void 0 ? _b : "" : "",
+        tamanho: pizzaSelecionada ? (_d = (_c = tamanho.options[tamanho.selectedIndex]) === null || _c === void 0 ? void 0 : _c.text) !== null && _d !== void 0 ? _d : "" : "",
         quantidade_pizza: pizzaSelecionada ? Number(qtdPizza.value) : 0,
-        bebida: bebidaSelecionada ? bebida.options[bebida.selectedIndex].text : "",
+        bebida: bebidaSelecionada ? (_f = (_e = bebida.options[bebida.selectedIndex]) === null || _e === void 0 ? void 0 : _e.text) !== null && _f !== void 0 ? _f : "" : "",
         quantidade_bebida: bebidaSelecionada ? Number(qtdBebida.value) : 0,
-        sobremesa: sobremesaSelecionada ? sobremesa.options[sobremesa.selectedIndex].text : "",
+        sobremesa: sobremesaSelecionada ? (_h = (_g = sobremesa.options[sobremesa.selectedIndex]) === null || _g === void 0 ? void 0 : _g.text) !== null && _h !== void 0 ? _h : "" : "",
         quantidade_sobremesa: sobremesaSelecionada ? Number(qtdSobremesa.value) : 0,
-        adicional: adicionalSelecionado ? adicional.options[adicional.selectedIndex].text : "",
+        adicional: adicionalSelecionado ? (_k = (_j = adicional.options[adicional.selectedIndex]) === null || _j === void 0 ? void 0 : _j.text) !== null && _k !== void 0 ? _k : "" : "",
         quantidade_adicional: adicionalSelecionado ? Number(qtdAdicional.value) : 0,
         observacoes: inputObservacoes.value.trim(),
         forma_pagamento: pagamento,
@@ -268,6 +269,7 @@ btnEnviar.addEventListener("click", () => {
     qtdSobremesa.value = "1";
     adicional.selectedIndex = 0;
     qtdAdicional.value = "1";
+    blocoNotas.innerHTML = "";
 });
 export {};
 //# sourceMappingURL=pedido.js.map

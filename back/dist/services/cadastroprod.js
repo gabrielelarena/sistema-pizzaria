@@ -12,6 +12,19 @@ const idSobremesaInput = document.getElementById("idSobremesa");
 const nomeAdicionalInput = document.getElementById("nomeAdicional");
 const precoAdicionalInput = document.getElementById("precoAdicional");
 const idAdicionalInput = document.getElementById("idAdicional");
+const cpfClienteInput = document.getElementById("CpfCliente");
+const nomeClienteInput = document.getElementById("NomeCliente");
+const telefoneClienteInput = document.getElementById("TelefoneCliente");
+const enderecoClienteInput = document.getElementById("EnderecoCliente");
+const produtoEsc = document.getElementById("produtoesc");
+const NomeProduto = document.getElementById("NomeProduto");
+const DataInicio = document.getElementById("DataInicio");
+const DataFim = document.getElementById("DataFim");
+const produtoDiv = document.getElementById("produtodevs");
+const listaVendas = document.getElementById("lista-vendas");
+const resultadoCompras = document.getElementById("resultadoCompras");
+const limparRelatorioBtn = document.getElementById("limparRelatorio");
+const btnBuscarCompras = document.getElementById("btnBuscarCompras");
 const btnCadastrarB = document.getElementById("cadastrabebida");
 const btnAtualizarB = document.getElementById("alterabebida");
 const btnExcluirB = document.getElementById("excluibebida");
@@ -24,6 +37,10 @@ const btnAtualizarS = document.getElementById("alterasobremesa");
 const btnCadastrarA = document.getElementById("cadastraadicional");
 const btnAtualizarA = document.getElementById("alteraadicional");
 const btnExcluirA = document.getElementById("excluiadicional");
+const btnCadastrarC = document.getElementById("cadastracliente");
+const btnAtualizarC = document.getElementById("alteracliente");
+const btnExcluirC = document.getElementById("excluicliente");
+const btnProcurarProd = document.getElementById("procurarprod"); //
 // Utilitário para converter preço corretamente
 function parsePreco(valor) {
     const normalizado = valor.replace(',', '.');
@@ -45,11 +62,16 @@ function limparCampos() {
     nomeAdicionalInput.value = "";
     precoAdicionalInput.value = "";
     idAdicionalInput.value = "";
+    cpfClienteInput.value = "";
+    nomeClienteInput.value = "";
+    telefoneClienteInput.value = "";
+    enderecoClienteInput.value = "";
 }
 // Cadastrar pizza
 btnCadastrarP.addEventListener("click", () => {
+    var _a, _b;
     const nome = nomeInput.value.trim();
-    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+    const tamanho = (_b = (_a = tamanhoSelect.options[tamanhoSelect.selectedIndex]) === null || _a === void 0 ? void 0 : _a.text) !== null && _b !== void 0 ? _b : "";
     const preco = parsePreco(precoInput.value);
     const pizza = { nome, tamanho, preco };
     fetch("http://localhost:3000/pizzas", {
@@ -69,13 +91,14 @@ btnCadastrarP.addEventListener("click", () => {
 });
 // Atualizar pizza
 btnAtualizarP.addEventListener("click", () => {
+    var _a, _b;
     const id = parseInt(idInput.value);
     if (isNaN(id) || id <= 0) {
         alert("Informe um ID válido para atualizar.");
         return;
     }
     const nome = nomeInput.value.trim();
-    const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex].text;
+    const tamanho = (_b = (_a = tamanhoSelect.options[tamanhoSelect.selectedIndex]) === null || _a === void 0 ? void 0 : _a.text) !== null && _b !== void 0 ? _b : "";
     const preco = parsePreco(precoInput.value);
     const pizza = {};
     if (nome)
@@ -353,5 +376,158 @@ btnExcluirA.addEventListener("click", () => {
         console.error("Erro ao excluir adicional:", err);
         alert("Erro ao excluir adicional.");
     });
+});
+// Cadastrar Cliente
+btnCadastrarC.addEventListener("click", () => {
+    const cpf = cpfClienteInput.value.trim();
+    const nome = nomeClienteInput.value.trim();
+    const telefone = telefoneClienteInput.value.trim();
+    const endereco = enderecoClienteInput.value.trim();
+    if (!cpf || !nome || !telefone || !endereco) {
+        alert("Preencha todos os campos para cadastrar o cliente.");
+        return;
+    }
+    const cliente = { cpf, nome, telefone, endereco };
+    fetch("http://localhost:3000/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao cadastrar cliente:", err);
+        alert("Erro ao cadastrar cliente.");
+    });
+});
+// Atualizar adicional
+btnAtualizarC.addEventListener("click", () => {
+    const cpf = cpfClienteInput.value.trim();
+    if (!cpf) {
+        alert("Informe o CPF do cliente para atualizar.");
+        return;
+    }
+    const nome = nomeClienteInput.value.trim();
+    const telefone = telefoneClienteInput.value.trim();
+    const endereco = enderecoClienteInput.value.trim();
+    const cliente = {};
+    if (nome)
+        cliente.nome = nome;
+    if (telefone)
+        cliente.telefone = telefone;
+    if (endereco)
+        cliente.endereco = endereco;
+    if (Object.keys(cliente).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/clientes/${cpf}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar cliente:", err);
+        alert("Erro ao atualizar cliente.");
+    });
+});
+// Excluir adicional
+btnExcluirC.addEventListener("click", () => {
+    const cpf = cpfClienteInput.value.trim();
+    if (!cpf) {
+        alert("Informe o CPF do cliente para excluir.");
+        return;
+    }
+    fetch(`http://localhost:3000/clientes/${cpf}`, {
+        method: "DELETE",
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        limparCampos();
+    })
+        .catch(err => {
+        console.error("Erro ao excluir cliente:", err);
+        alert("Erro ao excluir cliente.");
+    });
+});
+let nomeValor = "";
+let relatorioTxt = "";
+btnProcurarProd.addEventListener("click", () => {
+    produtoDiv.innerHTML = "";
+    listaVendas.innerHTML = "";
+    nomeValor = NomeProduto.value.trim();
+    const tipoValor = produtoEsc.value;
+    const inicioValor = DataInicio.value;
+    const fimValor = DataFim.value;
+    if (!tipoValor || !nomeValor || !inicioValor || !fimValor) {
+        alert("Preencha todos os campos.");
+        return;
+    }
+    fetch(`http://localhost:3000/produtos-vendidos?tipo=${tipoValor}&nome=${nomeValor}&inicio=${inicioValor}&fim=${fimValor}`)
+        .then(res => res.json())
+        .then(data => {
+        const campo = tipoToCampo(tipoValor);
+        relatorioTxt = data.txt;
+        // Calcula o total de itens vendidos
+        let totalItens = 0;
+        data.vendas.forEach((v) => {
+            totalItens += v[`quantidade_${campo}`];
+        });
+        // Exibe os dados no HTML
+        listaVendas.innerHTML = "";
+        data.vendas.forEach((v) => {
+            const item = document.createElement("p");
+            item.textContent = `Data: ${new Date(v.data_pedido).toLocaleString()} | Quantidade: ${v[`quantidade_${campo}`]}`;
+            item.style.marginBottom = "10px";
+            listaVendas.appendChild(item);
+        });
+        produtoDiv.innerHTML = `
+        <h3>Histórico de vendas de ${nomeValor}</h3>
+        <pre>${relatorioTxt}</pre>
+        <p><strong>Total de itens vendidos:</strong> ${totalItens}</p>
+      `;
+        limparRelatorioBtn.style.display = "block";
+        const relatorioFinal = `${relatorioTxt}\n\nTotal de itens vendidos: ${totalItens}`;
+        // ✅ Gera e baixa o arquivo automaticamente
+        const blob = new Blob([relatorioFinal], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `relatorio-${nomeValor}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    })
+        .catch(err => {
+        console.error("Erro ao buscar produtos vendidos:", err);
+        alert("Erro ao buscar produtos vendidos.");
+    });
+    ;
+    produtoEsc.selectedIndex = 0; // volta para "Selecione um produto"
+    NomeProduto.value = "";
+    DataInicio.value = "";
+    DataFim.value = "";
+});
+function tipoToCampo(tipo) {
+    return {
+        '1': 'pizza',
+        '2': 'bebida',
+        '3': 'sobremesa',
+        '4': 'adicional'
+    }[tipo] || '';
+}
+limparRelatorioBtn.addEventListener("click", () => {
+    produtoDiv.innerHTML = ""; // limpa o conteúdo do relatório
+    limparRelatorioBtn.style.display = "none"; // esconde o botão junto
 });
 //# sourceMappingURL=cadastroprod.js.map
