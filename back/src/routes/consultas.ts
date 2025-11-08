@@ -3,7 +3,8 @@ import { pool } from '../data/db.js';
 
 const routercons = express.Router();
 
-// 🔍 Consulta produto por tipo e ID
+// Consulta Produtos
+
 routercons.get("/produto", async (req, res) => {
   const { tipo, id } = req.query;
 
@@ -36,8 +37,8 @@ routercons.get("/produto", async (req, res) => {
   }
 });
 
-
 // Consultar Clientes
+
 routercons.get("/clientes", async (req, res) => {
   const { id, cpf, nome } = req.query;
 

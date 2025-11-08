@@ -4,7 +4,8 @@ import { Cliente, Pedido } from '../data/models.js';
 
 const router = express.Router();
 
-// 📦 ROTA: Enviar pedido
+// ROTA: Enviar pedido
+
 router.post('/enviar-pedido', async (req, res) => {
   const { cliente, pedidos }: { cliente: Cliente; pedidos: Pedido[] } = req.body;
 
@@ -66,7 +67,8 @@ router.post('/enviar-pedido', async (req, res) => {
   }
 });
 
-// 👤 ROTA: Cadastro de cliente
+// ROTA: Clientes
+
 router.post('/clientes', async (req, res) => {
   const { cpf, nome, telefone, endereco } = req.body;
 
@@ -98,7 +100,6 @@ router.post('/clientes', async (req, res) => {
   }
 });
 
-// ✏️ ROTA: Atualizar cliente
 router.put('/clientes/:cpf', async (req, res) => {
   const { cpf } = req.params;
   const { nome, telefone, endereco } = req.body;
@@ -142,7 +143,6 @@ router.put('/clientes/:cpf', async (req, res) => {
   }
 });
 
-// 🗑️ ROTA: Excluir cliente
 router.delete('/clientes/:cpf', async (req, res) => {
   const { cpf } = req.params;
 
