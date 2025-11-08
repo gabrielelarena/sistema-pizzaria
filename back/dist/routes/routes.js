@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import express from 'express';
 import { pool } from '../data/db.js';
 const router = express.Router();
-// 📦 ROTA: Enviar pedido
+// ROTA: Enviar pedido
 router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { cliente, pedidos } = req.body;
@@ -60,7 +60,7 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(500).json({ error: 'Erro ao salvar pedido.' });
     }
 }));
-// 👤 ROTA: Cadastro de cliente
+// ROTA: Clientes
 router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf, nome, telefone, endereco } = req.body;
     if (!cpf || !nome || !telefone) {
@@ -80,7 +80,6 @@ router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, functio
         return res.status(500).json({ error: 'Erro ao cadastrar cliente.' });
     }
 }));
-// ✏️ ROTA: Atualizar cliente
 router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     const { nome, telefone, endereco } = req.body;
@@ -116,7 +115,6 @@ router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(500).json({ error: 'Erro ao atualizar cliente.' });
     }
 }));
-// 🗑️ ROTA: Excluir cliente
 router.delete('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     if (!cpf) {

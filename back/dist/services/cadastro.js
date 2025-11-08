@@ -24,7 +24,6 @@ const produtoDiv = document.getElementById("produtodevs");
 const listaVendas = document.getElementById("lista-vendas");
 const resultadoCompras = document.getElementById("resultadoCompras");
 const limparRelatorioBtn = document.getElementById("limparRelatorio");
-const btnBuscarCompras = document.getElementById("btnBuscarCompras");
 const btnCadastrarB = document.getElementById("cadastrabebida");
 const btnAtualizarB = document.getElementById("alterabebida");
 const btnExcluirB = document.getElementById("excluibebida");

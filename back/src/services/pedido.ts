@@ -192,7 +192,6 @@ function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
   ].join("\n");
 }
 
-
 function gerarRecibo(cliente: Cliente, pedidos: Pedido[]): string {
   const agora = new Date();
   const data_pedido = `${agora.toLocaleDateString("pt-BR")} - ${agora.toLocaleTimeString("pt-BR", {
@@ -265,8 +264,6 @@ VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
   recibo += `\nTOTAL DE ITENS: ${totalItens}`;
   return recibo;
 }
-
-
 
 // Cria e baixa arquivo
 function baixarArquivo(nome: string, conteudo: string, tipo: string) {

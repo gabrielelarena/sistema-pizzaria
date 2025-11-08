@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import express from 'express';
 import { pool } from '../data/db.js';
 const routercons = express.Router();
-// 🔍 Consulta produto por tipo e ID
+// Consulta Produtos
 routercons.get("/produto", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tipo, id } = req.query;
     if (!tipo || !id) {
@@ -68,6 +68,28 @@ routercons.get("/clientes", (req, res) => __awaiter(void 0, void 0, void 0, func
     catch (err) {
         console.error("Erro ao consultar cliente:", err);
         return res.status(500).json({ error: "Erro ao consultar cliente." });
+    }
+}));
+// Historico de Compras
+routercons.get("/historico-compras", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cpf, dataInicio, dataFim } = req.query;
+    if (!cpf || !dataInicio || !dataFim) {
+        return res.status(400).json({ error: "CPF, data inicial e data final são obrigatórios." });
+    }
+    try {
+        const result = yield pool.query(`SELECT * FROM pedidos
+       WHERE cpf = $1
+       AND data_pedido BETWEEN $2 AND $3
+       ORDER BY data_pedido DESC`, [cpf, dataInicio, `${dataFim} 23:59:59`] // inclui o dia final completo
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Nenhuma compra encontrada nesse período." });
+        }
+        return res.json({ pedidos: result.rows });
+    }
+    catch (err) {
+        console.error("Erro ao buscar histórico de compras:", err);
+        return res.status(500).json({ error: "Erro ao buscar histórico de compras." });
     }
 }));
 export default routercons;

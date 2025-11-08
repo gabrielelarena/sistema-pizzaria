@@ -77,4 +77,32 @@ routercons.get("/clientes", async (req, res) => {
   }
 });
 
+// Historico de Compras
+routercons.get("/historico-compras", async (req, res) => {
+  const { cpf, dataInicio, dataFim } = req.query;
+
+  if (!cpf || !dataInicio || !dataFim) {
+    return res.status(400).json({ error: "CPF, data inicial e data final são obrigatórios." });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM pedidos
+       WHERE cpf = $1
+       AND data_pedido BETWEEN $2 AND $3
+       ORDER BY data_pedido DESC`,
+      [cpf, dataInicio, `${dataFim} 23:59:59`] // inclui o dia final completo
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Nenhuma compra encontrada nesse período." });
+    }
+
+    return res.json({ pedidos: result.rows });
+  } catch (err) {
+    console.error("Erro ao buscar histórico de compras:", err);
+    return res.status(500).json({ error: "Erro ao buscar histórico de compras." });
+  }
+});
+
 export default routercons;

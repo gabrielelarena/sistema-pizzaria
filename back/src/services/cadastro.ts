@@ -24,7 +24,6 @@ const listaVendas = document.getElementById("lista-vendas") as HTMLDivElement;
 const resultadoCompras = document.getElementById("resultadoCompras") as HTMLDivElement;
 
 const limparRelatorioBtn = document.getElementById("limparRelatorio") as HTMLButtonElement;
-const btnBuscarCompras = document.getElementById("btnBuscarCompras") as HTMLButtonElement;
 const btnCadastrarB = document.getElementById("cadastrabebida") as HTMLButtonElement;
 const btnAtualizarB = document.getElementById("alterabebida") as HTMLButtonElement;
 const btnExcluirB = document.getElementById("excluibebida") as HTMLButtonElement;
@@ -268,7 +267,6 @@ btnCadastrarS.addEventListener("click", () => {
     });
 });
 
-
 // Atualizar sobremesa
 btnAtualizarS.addEventListener("click", () => {
   const id = parseInt(idSobremesaInput.value);
@@ -327,7 +325,6 @@ btnExcluirS.addEventListener("click", () => {
     });
 });
 
-
 // Cadastrar adicional
 btnCadastrarA.addEventListener("click", () => {
   const nome = nomeAdicionalInput.value.trim();
@@ -355,7 +352,6 @@ btnCadastrarA.addEventListener("click", () => {
       alert("Erro ao cadastrar adicional.");
     });
 });
-
 
 // Atualizar adicional
 btnAtualizarA.addEventListener("click", () => {
@@ -450,7 +446,6 @@ btnCadastrarC.addEventListener("click", () => {
     });
 });
 
-
 // Atualizar cliente
 btnAtualizarC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
@@ -488,7 +483,6 @@ btnAtualizarC.addEventListener("click", () => {
       alert("Erro ao atualizar cliente.");
     });
 });
-
 
 // Excluir cliente
 btnExcluirC.addEventListener("click", () => {
