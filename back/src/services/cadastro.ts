@@ -39,7 +39,6 @@ const btnExcluirA = document.getElementById("excluiadicional") as HTMLButtonElem
 const btnCadastrarC = document.getElementById("cadastracliente") as HTMLButtonElement;
 const btnAtualizarC = document.getElementById("alteracliente") as HTMLButtonElement;
 const btnExcluirC = document.getElementById("excluicliente") as HTMLButtonElement;
-const btnProcurarProd = document.getElementById("procurarprod") as HTMLButtonElement; //
 
 // Utilitário para converter preço corretamente
 function parsePreco(valor: string): number {

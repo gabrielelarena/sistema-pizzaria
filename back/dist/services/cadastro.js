@@ -39,7 +39,6 @@ const btnExcluirA = document.getElementById("excluiadicional");
 const btnCadastrarC = document.getElementById("cadastracliente");
 const btnAtualizarC = document.getElementById("alteracliente");
 const btnExcluirC = document.getElementById("excluicliente");
-const btnProcurarProd = document.getElementById("procurarprod"); //
 // Utilitário para converter preço corretamente
 function parsePreco(valor) {
     const normalizado = valor.replace(',', '.');

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import router from '../routes/routes.js';
 import routerprod from '../routes/routesprod.js';
-import routhercons from '../routes/consultas.js';
+import routhercons from '../routes/routercons.js';
 
 const app = express();
 const port = 3000;

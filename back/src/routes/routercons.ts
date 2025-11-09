@@ -78,6 +78,7 @@ routercons.get("/clientes", async (req, res) => {
 });
 
 // Historico de Compras
+
 routercons.get("/historico-compras", async (req, res) => {
   const { cpf, dataInicio, dataFim } = req.query;
 
@@ -104,5 +105,45 @@ routercons.get("/historico-compras", async (req, res) => {
     return res.status(500).json({ error: "Erro ao buscar histórico de compras." });
   }
 });
+
+// Historico de Produtos vendidos
+
+routercons.get("/historico-produto", async (req, res) => {
+  const tipo = String(req.query.tipo);
+  const nome = String(req.query.nome);
+  const dataInicio = String(req.query.dataInicio);
+  const dataFim = String(req.query.dataFim);
+
+  const mapa: Record<string, { nome: string; quantidade: string }> = {
+    "1": { nome: "pizza", quantidade: "quantidade_pizza" },
+    "2": { nome: "bebida", quantidade: "quantidade_bebida" },
+    "3": { nome: "sobremesa", quantidade: "quantidade_sobremesa" },
+    "4": { nome: "adicional", quantidade: "quantidade_adicional" },
+  };
+
+  const colunas = mapa[tipo];
+  if (!colunas) return res.status(400).json({ error: "Tipo inválido." });
+
+  try {
+    const result = await pool.query(
+      `SELECT ${colunas.quantidade} AS quantidade, data_pedido
+       FROM pedidos
+       WHERE ${colunas.nome} = $1
+       AND data_pedido BETWEEN $2 AND $3
+       ORDER BY data_pedido`,
+      [nome, dataInicio, `${dataFim} 23:59:59`]
+    );
+
+    return res.json({
+      produto: nome,
+      tipo: colunas.nome,
+      vendas: result.rows,
+    });
+  } catch (err) {
+    console.error("Erro:", err);
+    return res.status(500).json({ error: "Erro ao buscar vendas." });
+  }
+});
+
 
 export default routercons;
