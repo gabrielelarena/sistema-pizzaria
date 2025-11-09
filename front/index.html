@@ -90,7 +90,7 @@
       justify-content: center;
       align-items: center;
       z-index: 1;
-      transform: translateY(100px);
+      transform: translateY(30px);
     }
 
     .container .card:hover .face.face1 {
@@ -117,37 +117,6 @@
       color: #fff;
       text-align: center;
       font-size: 1.5em;
-    }
-
-    .container .card .face.face2 {
-      position: relative;
-      background: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      transform: translateY(-100px);
-    }
-
-    .container .card:hover .face.face2 {
-      transform: translateY(0);
-    }
-
-    .container .card .face.face2 .content a {
-      display: inline-block;
-      margin-left: 2cm;
-      text-decoration: none;
-      font-weight: 900;
-      color: #000000;
-      padding: 5px;
-      border: 1px solid #000000;
-      transition: 0.4s;
-    }
-
-    .container .card .face.face2 .content a:hover {
-      border-radius: 10px;
-      background: #e82020;
-      color: #fff;
     }
 
     p {
@@ -255,7 +224,6 @@
       </div>
     </div>
     <div class="row row-cols-1 row-cols-md-3 g-4 pt-4">
-
       <div class="col">
         <div id="pizza5" class="card h-100">
           <a class="text-center m-auto" href="#inicio"><img src="./img/margherita.jpg" class="card-img-top w-100 m-auto"
@@ -266,7 +234,6 @@
           </div>
         </div>
       </div>
-
       <div class="col">
         <div id="pizza6" class="card h-100">
           <a class="text-center m-auto" href="#inicio"><img src="./img/quatroqueijos.jpg"
@@ -288,68 +255,51 @@
         </div>
       </div>
     </div>
-    </div>
   </main>
 
   <div class="container">
     <div class="card">
-      <div class="face face1">
-        <div class="content">
-          <img class="rounded" src="img/2.png">
+      <a href="historico.html">
+        <div class="face face1">
+          <div class="content">
+            <img class="rounded" src="img/2.png">
+          </div>
         </div>
-      </div>
-
-      <div class="face face2">
-        <div class="content">
-          <p>Acesse seu histórico!</p>
-          <a href="historico.html">Histórico de Compras</a>
-        </div>
-      </div>
+      </a>
     </div>
 
     <div class="card">
-      <div class="face face1">
-        <div class="content">
-          <img class="rounded" src="img/1.png">
+      <a href="cadastro.html">
+        <div class="face face1">
+          <div class="content">
+            <img class="rounded" src="img/1.png">
+          </div>
         </div>
-      </div>
-      <div class="face face2">
-        <div class="content">
-          <p>Faça seu pedido no botão abaixo.</p>
-          <a href="cadastro.html">Faça seu pedido</a>
-        </div>
-      </div>
+      </a>
     </div>
 
     <div class="card">
-      <div class="face face1">
-        <div class="content">
-          <img src="img/3.png">
+      <a href="consulta.html">
+        <div class="face face1">
+          <div class="content">
+            <img src="img/3.png">
+          </div>
         </div>
-      </div>
-      <div class="face face2">
-        <div class="content">
-          <p>As maiores personalidades da Itália se destacavam por suas obras, culturas e revolução no país. </p>
-          <a href="consulta.html">Personalidades</a>
-        </div>
-      </div>
+      </a>
     </div>
+
     <div class="card">
-      <div class="face face1">
-        <div class="content">
-          <img width="240px" src="img/4.png">
+      <a href="admin-senha.html">
+        <div class="face face1">
+          <div class="content">
+            <img width="240px" src="img/4.png">
+          </div>
         </div>
-      </div>
-      <div class="face face2">
-        <div class="content">
-          <p>Informações sobre o website desenvolvido.</p>
-          <a href="admin-senha.html">Informações</a>
-        </div>
-      </div>
+      </a>
     </div>
   </div>
 
-  <div class="m-auto">
+  <div class="m- pt-5">
     <footer class="py-3 my-4">
       <p class="text-center">&copy; 2023 Pizzaria Parma, Inc. Todos os direitos
         reservados.</p>
