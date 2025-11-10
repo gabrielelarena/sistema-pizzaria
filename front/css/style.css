@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap');
+
+
+body {
+    font-family: "Parkinsans", sans-serif;
+    cursor: url("img/cursor-1.png") 16 16, auto;
+}
+
+h2 {
+    font-weight: normal;
+    color: #ca2521;
+}
+
+
+h3 {
+    font-weight: normal;
+    color: #0a430c;
+}
+
+.input-group,
+form {
+    width: 60vw;
+}
+
+.quadro {
+    background-color: #b5b3b335;
+    margin: auto;
+    border-radius: 20px;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+button,
+a {
+    cursor: url("img/cursor-2.png") 16 16, auto;
+    font-family: "Parkinsans", sans-serif;
+    cursor: url('img/cursor.cur'), url('img/cursor-1.png') 16 16, auto !important;
+}
+
+button,
+.btn,
+a,
+.nav-link,
+.dropdown-item {
+    cursor: url('img/cursor-pointer.cur'), url('img/cursor-1.png') 16 16, pointer !important;
+    transition: transform .06s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:active,
+.btn:active,
+a:active {
+    cursor: url('img/cursor-click.cur'), url('img/cursor-2.png') 16 16, pointer !important;
+    transform: translateY(1px) scale(.995);
+}
+
+/*configurações do carrossel*/
+
+.carousel {
+    margin-bottom: 4rem;
+}
+
+.carousel-caption {
+    bottom: 3rem;
+    z-index: 10;
+}
+
+.carousel-item {
+    height: 30rem;
+}
+
+@media (min-width: 62em) {
+    .featurette-heading {
+        margin-top: 7rem;
+    }
+}
+
+.img1 {
+    height: 150%;
+    width: 100%;
+}
+
+/*configurações do design da página*/
+
+.tit {
+    font-family: 'Britannic Bold';
+    font-size: 100px;
+    color: #a50019;
+    font-weight: bold;
+    text-align: center;
+}
+
+.subt {
+    font-family: "Host Grotesk", sans-serif;
+    font-size: 1.4rem;
+    color: #f08d36;
+    font-weight: bold;
+    padding-bottom: 20px;
+    text-align: center;
+}
+
+/*configuração das fotos com links*/
+
+.container {
+    width: 1400px;
+    position: relative;
+    display: flex;
+    padding-top: 30px;
+    justify-content: space-between;
+}
+
+.container .card {
+    position: relative;
+    cursor: pointer;
+    border: none;
+}
+
+.container .card .face {
+    width: 300px;
+    height: 200px;
+    transition: 0.5s;
+    border-radius: 18px;
+}
+
+.container .card .face.face1 {
+    position: relative;
+    background: #025939;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    transform: translateY(30px);
+}
+
+.container .card:hover .face.face1 {
+    background-color: #f29c50;
+    transform: translateY(0);
+}
+
+.container .card .face.face1 .content {
+    opacity: 0.5;
+    transition: 0.5s;
+}
+
+.container .card:hover .face.face1 .content {
+    opacity: 1;
+}
+
+.container .card .face.face1 .content img {
+    max-width: 300px;
+    max-height: 170px;
+}
+
+.container .card .face.face1 .content h3 {
+    margin: 10px 0 0;
+    color: #fff;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+p {
+    font-family: "Host Grotesk", sans-serif;
+    font-size: 17px;
+    color: #000;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .input-group {
+        width: 95vw;
+    }
+}
+
+@media (max-width: 700px) {
+    .input-group {
+        width: 95vw;
+    }
+}

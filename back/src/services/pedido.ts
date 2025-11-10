@@ -51,7 +51,6 @@ export interface Pedido {
   cupom: string;
 }
 
-
 const pedidos: Pedido[] = [];
 
 btnAdicionar.addEventListener("click", () => {
