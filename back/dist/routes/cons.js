@@ -125,4 +125,4 @@ routercons.get("/historico-produto", (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 export default routercons;
-//# sourceMappingURL=routercons.js.map
+//# sourceMappingURL=cons.js.map

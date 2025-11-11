@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 // Campos de seleção de pedido
 const sabor = document.getElementById("Sabor");
 const tamanho = document.getElementById("tamanho");
@@ -80,26 +89,70 @@ btnAdicionar.addEventListener("click", () => {
     pedidos.push(novoPedido);
     atualizarBlocoNotas();
 });
-// Atualiza visualmente o bloco de notas
+function buscarPreco(tipo, nome, tamanho) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const params = new URLSearchParams({ tipo, nome });
+        if (tamanho)
+            params.append("tamanho", tamanho);
+        const res = yield fetch(`http://localhost:3000/preco-produto?${params.toString()}`);
+        const data = yield res.json();
+        return data.preco || 0;
+    });
+}
+function adicionarPedido() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pedido = {
+            pizza: "Calabresa",
+            tamanho: "Média",
+            quantidade_pizza: 2,
+            bebida: "Refrigerante Lata (Coca)",
+            quantidade_bebida: 1,
+            sobremesa: "Torta de Limão",
+            quantidade_sobremesa: 1,
+            adicional: "Frango Desfiado",
+            quantidade_adicional: 1
+        };
+        pedidos.push(pedido);
+        yield atualizarBlocoNotas();
+    });
+}
 function atualizarBlocoNotas() {
-    blocoNotas.innerHTML = "";
-    pedidos.forEach((p) => {
-        let texto = `<p><strong>Pedido:</strong> `;
-        const partes = [];
-        if (p.quantidade_pizza > 0 && p.pizza) {
-            partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
+    return __awaiter(this, void 0, void 0, function* () {
+        const blocoNotas = document.getElementById("blocoNotas");
+        const valorTotalDiv = document.getElementById("valorTotal");
+        blocoNotas.innerHTML = "";
+        let valorTotal = 0;
+        for (const p of pedidos) {
+            let texto = `<p><strong>Pedido:</strong> `;
+            const partes = [];
+            if (p.pizza && p.tamanho) {
+                const precoPizza = yield buscarPreco("pizza", p.pizza, p.tamanho);
+                const valor = precoPizza * p.quantidade_pizza;
+                valorTotal += valor;
+                partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho}) (${precoPizza.toFixed(2)})`);
+            }
+            if (p.bebida) {
+                const precoBebida = yield buscarPreco("bebida", p.bebida);
+                const valor = precoBebida * p.quantidade_bebida;
+                valorTotal += valor;
+                partes.push(`${p.quantidade_bebida}x ${p.bebida} (${precoBebida.toFixed(2)})`);
+            }
+            if (p.sobremesa) {
+                const precoSobremesa = yield buscarPreco("sobremesa", p.sobremesa);
+                const valor = precoSobremesa * p.quantidade_sobremesa;
+                valorTotal += valor;
+                partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa} (${precoSobremesa.toFixed(2)})`);
+            }
+            if (p.adicional) {
+                const precoAdicional = yield buscarPreco("adicional", p.adicional);
+                const valor = precoAdicional * p.quantidade_adicional;
+                valorTotal += valor;
+                partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional} (${precoAdicional.toFixed(2)})`);
+            }
+            texto += partes.join(" + ") + "</p>";
+            blocoNotas.innerHTML += texto;
         }
-        if (p.quantidade_bebida > 0 && p.bebida) {
-            partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
-        }
-        if (p.quantidade_sobremesa > 0 && p.sobremesa) {
-            partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
-        }
-        if (p.quantidade_adicional > 0 && p.adicional) {
-            partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional}`);
-        }
-        texto += partes.join(" + ") + "</p>";
-        blocoNotas.innerHTML += texto;
+        valorTotalDiv.textContent = `Total: R$ ${valorTotal.toFixed(2)}`;
         // Limpa os campos de seleção após adicionar ao bloco de notas
         sabor.selectedIndex = 0;
         tamanho.selectedIndex = 0;
@@ -112,6 +165,48 @@ function atualizarBlocoNotas() {
         qtdAdicional.value = "1";
     });
 }
+// Atualiza visualmente o bloco de notas
+/*function atualizarBlocoNotas() {
+  blocoNotas.innerHTML = "";
+  pedidos.forEach((p) => {
+    let texto = `<p><strong>Pedido:</strong> `;
+    const partes = [];
+
+    if (p.quantidade_pizza > 0 && p.pizza) {
+      partes.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
+    }
+
+    if (p.quantidade_bebida > 0 && p.bebida) {
+      partes.push(`${p.quantidade_bebida}x ${p.bebida}`);
+    }
+
+    if (p.quantidade_sobremesa > 0 && p.sobremesa) {
+      partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
+    }
+    if (p.quantidade_adicional > 0 && p.adicional) {
+      partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional}`);
+    }
+
+    texto += partes.join(" + ") + "</p>";
+    blocoNotas.innerHTML += texto;
+
+    // Limpa os campos de seleção após adicionar ao bloco de notas
+    sabor.selectedIndex = 0;
+    tamanho.selectedIndex = 0;
+    qtdPizza.value = "1";
+
+    bebida.selectedIndex = 0;
+    qtdBebida.value = "1";
+
+    sobremesa.selectedIndex = 0;
+    qtdSobremesa.value = "1";
+
+    adicional.selectedIndex = 0;
+    qtdAdicional.value = "1";
+
+  });
+}
+*/
 function gerarCSV(cliente, pedidos) {
     const enderecoFinal = cliente.endereco || "Retirar no local";
     const headerCliente = "CPF,Nome,Telefone,Endereço";

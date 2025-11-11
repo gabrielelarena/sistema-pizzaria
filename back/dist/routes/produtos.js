@@ -275,4 +275,4 @@ routerprod.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 export default routerprod;
-//# sourceMappingURL=routesprod.js.map
+//# sourceMappingURL=produtos.js.map
