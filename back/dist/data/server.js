@@ -3,7 +3,7 @@ import cors from 'cors';
 import router from '../routes/routes.js';
 import routerprod from '../routes/produtos.js';
 import routhercons from '../routes/cons.js';
-import routherpreco from '../routes/preco.js';
+import routherpreco from '../routes/precos.js';
 const app = express();
 const port = 3000;
 app.use(cors());

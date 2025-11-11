@@ -8,6 +8,7 @@ const sobremesa = document.getElementById("sobremesa") as HTMLSelectElement;
 const qtdSobremesa = document.getElementById("quantidade_sobremesa") as HTMLInputElement;
 const adicional = document.getElementById('adicional') as HTMLSelectElement;
 const qtdAdicional = document.getElementById('quantidade_adicional') as HTMLInputElement;
+const valorTotal = document.getElementById("valorTotal") as HTMLElement;
 
 // Campos de dados do cliente
 const inputCPF = document.getElementById("cpf") as HTMLInputElement;
@@ -117,15 +118,29 @@ btnAdicionar.addEventListener("click", () => {
     cupom: inputCupom.value.trim()
   };
 
-  pedidos.push(novoPedido);
-  atualizarBlocoNotas();
+  fetch("http://localhost:3000/calcular-preco", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(novoPedido)
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      novoPedido.preco_total = data.preco_total;
+      pedidos.push(novoPedido);
+      atualizarBlocoNotas();
+    })
+    .catch((err) => {
+      console.error("Erro ao calcular preço:", err);
+      alert("Erro ao calcular preço do pedido.");
+    });
 });
 
 // Atualiza visualmente o bloco de notas
 function atualizarBlocoNotas() {
   blocoNotas.innerHTML = "";
-  pedidos.forEach((p) => {
-    let texto = `<p><strong>Pedido:</strong> `;
+  let valorTotalGeral = 0;
+
+  pedidos.forEach((p, index) => {
     const partes = [];
 
     if (p.quantidade_pizza > 0 && p.pizza) {
@@ -139,12 +154,24 @@ function atualizarBlocoNotas() {
     if (p.quantidade_sobremesa > 0 && p.sobremesa) {
       partes.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
     }
+
     if (p.quantidade_adicional > 0 && p.adicional) {
       partes.push(`${p.quantidade_adicional}x Adicional ${p.adicional}`);
     }
 
-    texto += partes.join(" + ") + "</p>";
-    blocoNotas.innerHTML += texto;
+    valorTotalGeral += p.preco_total;
+
+    const pedidoHTML = `
+      <div class="pedido-bloco" style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+        <p><strong>Pedido ${index + 1}:</strong> ${partes.join(" + ")}</p>
+        <p><strong>Valor do pedido:</strong> R$ ${p.preco_total.toFixed(2)}</p>
+      </div>
+    `;
+
+    blocoNotas.innerHTML += pedidoHTML;
+  });
+
+  valorTotal.textContent = `Total: R$ ${valorTotalGeral.toFixed(2)}`;
 
     // Limpa os campos de seleção após adicionar ao bloco de notas
     sabor.selectedIndex = 0;
@@ -159,8 +186,6 @@ function atualizarBlocoNotas() {
 
     adicional.selectedIndex = 0;
     qtdAdicional.value = "1";
-
-  });
 }
 
 function gerarCSV(cliente: Cliente, pedidos: Pedido[]): string {
@@ -354,6 +379,7 @@ btnEnviar.addEventListener("click", () => {
   adicional.selectedIndex = 0;
   qtdAdicional.value = "1";
 
-   blocoNotas.innerHTML = "";
+  blocoNotas.innerHTML = "";
+  valorTotal.innerHTML = "";
 
 });
