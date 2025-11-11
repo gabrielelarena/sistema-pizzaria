@@ -169,11 +169,6 @@ p {
     text-align: center;
 }
 
-@media (max-width: 700px) {
-    .input-group {
-        width: 95vw;
-    }
-}
 
 @media (max-width: 700px) {
     .input-group {
