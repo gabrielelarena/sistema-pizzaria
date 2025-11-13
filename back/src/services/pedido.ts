@@ -171,6 +171,12 @@ function atualizarBlocoNotas() {
     blocoNotas.innerHTML += pedidoHTML;
   });
 
+  // 🚚 Se endereço preenchido, soma frete
+  if (inputEndereco.value.trim() !== "") {
+    valorTotalGeral += 5;
+    blocoNotas.innerHTML += `<p><strong>Frete:</strong> R$ 5,00</p>`;
+  }
+
   valorTotal.textContent = `Total: R$ ${valorTotalGeral.toFixed(2)}`;
 
     // Limpa os campos de seleção após adicionar ao bloco de notas
