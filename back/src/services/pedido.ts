@@ -53,6 +53,7 @@ export interface Pedido {
   cupom: string;
 }
 
+let freteGratis = false;
 const pedidos: Pedido[] = [];
 
 btnAdicionar.addEventListener("click", () => {
@@ -136,8 +137,6 @@ btnAdicionar.addEventListener("click", () => {
       alert("Erro ao calcular preço do pedido.");
     });
 });
-
-let freteGratis = false;
 
 // Atualiza visualmente o bloco de notas
 function atualizarBlocoNotas() {
@@ -257,7 +256,7 @@ ENDEREÇO: ${enderecoFinal}
     recibo += `
 OBSERVAÇÕES: ${ultimo.observacoes || "Nenhuma"}
 FORMA DE PAGAMENTO: ${pagamento}
-CUPOM: ${ultimo.cupom || "Nenhum"}
+CUPOM: ${ultimo?.cupom || "Nenhum"}
 FRETE: R$ ${frete.toFixed(2)}
 VALOR TOTAL: R$ ${(valorTotal + frete).toFixed(2)}
 `;
@@ -306,7 +305,6 @@ function gerarCSV(cliente: Cliente, pedidos: Pedido[], frete: number): string {
 
   return csv;
 }
-
 // Cria e baixa arquivo
 function baixarArquivo(nome: string, conteudo: string, tipo: string) {
   const blob = new Blob([conteudo], { type: tipo });
@@ -330,7 +328,9 @@ btnValidarCupom.addEventListener("click", async () => {
   let valido = false;
 
   if (!cupom) {
-    alert("Digite um cupom.");
+    // se não digitou nada, apenas limpa
+    ultimo.cupom = "";
+    alert("Nenhum cupom informado.");
     return;
   }
 
@@ -396,7 +396,6 @@ btnValidarCupom.addEventListener("click", async () => {
       }
       break;
 
-
     case "COKEBOM":
       const temGrande = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("G"));
       const temMedia = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("M"));
@@ -409,21 +408,27 @@ btnValidarCupom.addEventListener("click", async () => {
       break;
 
     default:
-      alert("Cupom não reconhecido.");
+      alert("Cupom inválido, corrija antes de enviar.");
+      ultimo.cupom = ""; // 🔄 limpa se inválido
   }
 
-  // 🎨 Feedback visual no input
-  if (valido) {
-    inputCupom.classList.remove("is-invalid");
-    inputCupom.classList.add("is-valid");
-    inputCupom.disabled = true; // trava o campo se for válido
-    atualizarBlocoNotas();      // atualiza bloco com promoções aplicadas
-  } else {
-    inputCupom.classList.remove("is-valid");
-    inputCupom.classList.add("is-invalid");
+  // Feedback visual simplificado
+  inputCupom.classList.remove("is-valid", "is-invalid");
+  if (cupom !== "") {
+    inputCupom.classList.add(valido ? "is-valid" : "is-invalid");
   }
+
+  atualizarBlocoNotas();
 });
 
+inputCupom.addEventListener("input", () => {
+  if (inputCupom.value.trim() === "") {
+    inputCupom.classList.remove("is-valid", "is-invalid");
+    if (pedidos.length > 0) {
+      pedidos[pedidos.length - 1]!.cupom = ""; // limpa cupom no objeto
+    }
+  }
+});
 
 // Envia pedido e gera arquivos
 btnEnviar.addEventListener("click", () => {
@@ -529,165 +534,3 @@ btnEnviar.addEventListener("click", () => {
   blocoNotas.innerHTML = "";
   valorTotal.innerHTML = "";
 });
-
-
-/* Envia pedido e gera arquivos
-
-function gerarRecibo(cliente: Cliente, pedidos: Pedido[]): string {
-  const agora = new Date();
-  const data_pedido = `${agora.toLocaleDateString("pt-BR")} - ${agora.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  })}`;
-  const enderecoFinal = cliente.endereco.trim() === "" ? "Retirar no local" : cliente.endereco;
-
-  let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------
-
-DATA: ${data_pedido}
-CLIENTE: ${cliente.nome}
-CPF: ${cliente.cpf}
-TELEFONE: ${cliente.telefone}
-ENDEREÇO: ${enderecoFinal}
-
-`;
-
-  let totalItens = 0;
-  let valorTotal = 0;
-
-  const itensPedido: string[] = [];
-  const itensAdicionais: string[] = [];
-
-  pedidos.forEach((p) => {
-    if (p.quantidade_pizza > 0 && p.pizza) {
-      itensPedido.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
-      totalItens += p.quantidade_pizza;
-    }
-
-    if (p.quantidade_bebida > 0 && p.bebida) {
-      itensPedido.push(`${p.quantidade_bebida}x ${p.bebida}`);
-      totalItens += p.quantidade_bebida;
-    }
-
-    if (p.quantidade_sobremesa > 0 && p.sobremesa) {
-      itensPedido.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
-      totalItens += p.quantidade_sobremesa;
-    }
-
-    if (p.quantidade_adicional > 0 && p.adicional) {
-      itensAdicionais.push(`${p.quantidade_adicional}x ${p.adicional}`);
-      totalItens += p.quantidade_adicional;
-    }
-
-    valorTotal += p.preco_total;
-  });
-
-  // Exibe todos os itens como um único pedido
-  if (itensPedido.length > 0) {
-    recibo += `Pedido: ${itensPedido.join(" + ")}\n`;
-  }
-
-  // Exibe os adicionais separadamente após o pedido
-  if (itensAdicionais.length > 0) {
-    recibo += `Adicionais: ${itensAdicionais.join(" + ")}\n`;
-  }
-
-  const ultimo: Pedido | undefined = pedidos[pedidos.length - 1];
-
-  if (ultimo) {
-    recibo += `
-OBSERVAÇÕES: ${ultimo.observacoes}
-FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
-CUPOM: ${ultimo.cupom}
-VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
-`;
-  }
-
-  recibo += `\nTOTAL DE ITENS: ${totalItens}`;
-  return recibo;
-}
-
-
-btnEnviar.addEventListener("click", () => {
-  if (pedidos.length === 0) {
-    alert("Adicione pelo menos um item ao pedido!");
-    return;
-  }
-
-
-  const cliente: Cliente = {
-    cliente_id: `${inputCPF.value.trim()}-${Date.now()}`, // exemplo de ID único
-    cpf: inputCPF.value.trim(),
-    nome: inputNome.value.trim(),
-    telefone: inputTelefone.value.trim(),
-    endereco: inputEndereco.value.trim(),
-  };
-
-  const cpfValido = /^\d{11}$/.test(cliente.cpf);
-  const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(cliente.nome);
-  const telefoneValido = /^\d+$/.test(cliente.telefone);
-
-  if (!cpfValido) {
-    alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
-    return;
-  }
-
-  if (!nomeValido) {
-    alert("Nome inválido! Deve conter no mínimo 3 letras e apenas letras.");
-    return;
-  }
-
-  if (!telefoneValido) {
-    alert("Telefone inválido! Deve conter apenas números.");
-    return;
-  }
-
-  // Gera recibo e CSV
-  const csv = gerarCSV(cliente, pedidos);
-  const recibo = gerarRecibo(cliente, pedidos);
-  baixarArquivo("recibo.txt", recibo, "text/plain");
-  console.log("CSV armazenado internamente:\n", csv);
-
-  // Envia para o backend
-  console.log("Enviando para backend:", JSON.stringify({ cliente, pedidos }, null, 2));
-  fetch("http://localhost:3000/enviar-pedido", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cliente, pedidos }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message || "Pedido enviado com sucesso!");
-      pedidos.length = 0;
-      blocoNotas.innerHTML = "";
-    })
-    .catch((err) => {
-      console.error("Erro ao enviar pedido:", err);
-      alert("Erro ao enviar pedido.");
-    });
-
-  // Limpa todos os campos após envio
-  inputCPF.value = "";
-  inputNome.value = "";
-  inputTelefone.value = "";
-  inputEndereco.value = "";
-  inputPagamento.value = "";
-  inputObservacoes.value = "";
-  inputCupom.value = "";
-
-  sabor.selectedIndex = 0;
-  tamanho.selectedIndex = 0;
-  qtdPizza.value = "1";
-
-  bebida.selectedIndex = 0;
-  qtdBebida.value = "1";
-
-  sobremesa.selectedIndex = 0;
-  qtdSobremesa.value = "1";
-
-  adicional.selectedIndex = 0;
-  qtdAdicional.value = "1";
-
-  blocoNotas.innerHTML = "";
-  valorTotal.innerHTML = "";
-
-}); */

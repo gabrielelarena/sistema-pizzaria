@@ -202,7 +202,7 @@ ENDEREÇO: ${enderecoFinal}
         recibo += `
 OBSERVAÇÕES: ${ultimo.observacoes || "Nenhuma"}
 FORMA DE PAGAMENTO: ${pagamento}
-CUPOM: ${ultimo.cupom || "Nenhum"}
+CUPOM: ${(ultimo === null || ultimo === void 0 ? void 0 : ultimo.cupom) || "Nenhum"}
 FRETE: R$ ${frete.toFixed(2)}
 VALOR TOTAL: R$ ${(valorTotal + frete).toFixed(2)}
 `;
@@ -258,64 +258,60 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
         alert("Nenhum pedido encontrado para validar cupons.");
         return;
     }
-    // ✅ aqui o TS já sabe que não é undefined
     const ultimo = pedidos[pedidos.length - 1];
     const cupom = inputCupom.value.trim().toUpperCase();
     let valido = false;
     if (!cupom) {
-        alert("Digite um cupom.");
+        ultimo.cupom = "";
+        alert("Nenhum cupom informado.");
         return;
     }
     switch (cupom) {
         case "PRIMEIRACOMPRA": {
-            console.log("Verificando cliente com CPF:", ultimo.cpf);
-            const res = yield fetch(`http://localhost:3000/verificar-cliente/${encodeURIComponent(ultimo.cpf)}`, {
-                method: "GET",
-                headers: { "Accept": "application/json" }
-            });
+            const res = yield fetch(`http://localhost:3000/verificar-cliente/${encodeURIComponent(ultimo.cpf)}`);
             if (!res.ok) {
-                console.error("Resposta não OK:", res.status, res.statusText);
-                alert("Erro ao verificar CPF. Tente novamente.");
+                alert("Erro ao verificar CPF.");
                 break;
             }
             const data = yield res.json();
-            console.log("Resultado verificação:", data);
             if (!data.existe) {
                 freteGratis = true;
+                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: FRETE GRÁTIS!");
                 valido = true;
             }
             else {
+                ultimo.cupom = ""; // limpa se inválido
                 alert("Cupom inválido: já existe cliente com este CPF.");
             }
             break;
         }
         case "CONTO20":
-            // soma todas as pizzas de todos os pedidos
             const totalPizzas = pedidos.reduce((acc, p) => acc + p.quantidade_pizza, 0);
             if (totalPizzas >= 3) {
-                // aplica desconto apenas sobre os itens (sem frete)
                 pedidos.forEach(p => {
                     const desconto = p.quantidade_pizza > 0 ? p.preco_total * 0.2 : 0;
                     p.preco_total -= desconto;
                 });
+                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: 20% de desconto aplicado nas pizzas!");
                 valido = true;
             }
             else {
+                ultimo.cupom = "";
                 alert("Cupom inválido: precisa de pelo menos 3 pizzas no total.");
             }
             break;
         case "PUDIMZIM":
-            // soma o valor de todos os pedidos já adicionados
             const totalPedidos = pedidos.reduce((acc, p) => acc + p.preco_total, 0);
             if (totalPedidos > 100) {
+                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: você ganhou um pudim!");
                 valido = true;
-                // aqui você pode marcar no bloco de notas que o pudim foi incluído
                 blocoNotas.innerHTML += `<p><strong>Promoção:</strong> Pudim grátis incluído</p>`;
             }
             else {
+                ultimo.cupom = "";
                 alert("Cupom inválido: só vale se gastar mais de R$100 no total da compra.");
             }
             break;
@@ -323,28 +319,34 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             const temGrande = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("G"));
             const temMedia = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("M"));
             if ((temGrande && ultimo.tamanho.includes("M")) || (temMedia && ultimo.tamanho.includes("G"))) {
+                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: ganhou uma Coca 2L!");
                 valido = true;
             }
             else {
+                ultimo.cupom = "";
                 alert("Cupom inválido: precisa pedir M e G do mesmo sabor.");
             }
             break;
         default:
-            alert("Cupom não reconhecido.");
+            ultimo.cupom = ""; // 🔄 limpa se inválido
+            alert("Cupom inválido, corrija antes de enviar.");
     }
-    // 🎨 Feedback visual no input
-    if (valido) {
-        inputCupom.classList.remove("is-invalid");
-        inputCupom.classList.add("is-valid");
-        inputCupom.disabled = true; // trava o campo se for válido
-        atualizarBlocoNotas(); // atualiza bloco com promoções aplicadas
+    // Feedback visual simplificado
+    inputCupom.classList.remove("is-valid", "is-invalid");
+    if (cupom !== "") {
+        inputCupom.classList.add(valido ? "is-valid" : "is-invalid");
     }
-    else {
-        inputCupom.classList.remove("is-valid");
-        inputCupom.classList.add("is-invalid");
-    }
+    atualizarBlocoNotas();
 }));
+inputCupom.addEventListener("input", () => {
+    if (inputCupom.value.trim() === "") {
+        inputCupom.classList.remove("is-valid", "is-invalid");
+        if (pedidos.length > 0) {
+            pedidos[pedidos.length - 1].cupom = ""; // limpa cupom no objeto
+        }
+    }
+});
 // Envia pedido e gera arquivos
 btnEnviar.addEventListener("click", () => {
     if (pedidos.length === 0) {
@@ -438,164 +440,4 @@ btnEnviar.addEventListener("click", () => {
     valorTotal.innerHTML = "";
 });
 export {};
-/* Envia pedido e gera arquivos
-
-function gerarRecibo(cliente: Cliente, pedidos: Pedido[]): string {
-  const agora = new Date();
-  const data_pedido = `${agora.toLocaleDateString("pt-BR")} - ${agora.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  })}`;
-  const enderecoFinal = cliente.endereco.trim() === "" ? "Retirar no local" : cliente.endereco;
-
-  let recibo = `🧾 ------------- RECIBO DO PEDIDO -------------
-
-DATA: ${data_pedido}
-CLIENTE: ${cliente.nome}
-CPF: ${cliente.cpf}
-TELEFONE: ${cliente.telefone}
-ENDEREÇO: ${enderecoFinal}
-
-`;
-
-  let totalItens = 0;
-  let valorTotal = 0;
-
-  const itensPedido: string[] = [];
-  const itensAdicionais: string[] = [];
-
-  pedidos.forEach((p) => {
-    if (p.quantidade_pizza > 0 && p.pizza) {
-      itensPedido.push(`${p.quantidade_pizza}x Pizza ${p.pizza} (${p.tamanho})`);
-      totalItens += p.quantidade_pizza;
-    }
-
-    if (p.quantidade_bebida > 0 && p.bebida) {
-      itensPedido.push(`${p.quantidade_bebida}x ${p.bebida}`);
-      totalItens += p.quantidade_bebida;
-    }
-
-    if (p.quantidade_sobremesa > 0 && p.sobremesa) {
-      itensPedido.push(`${p.quantidade_sobremesa}x Sobremesa ${p.sobremesa}`);
-      totalItens += p.quantidade_sobremesa;
-    }
-
-    if (p.quantidade_adicional > 0 && p.adicional) {
-      itensAdicionais.push(`${p.quantidade_adicional}x ${p.adicional}`);
-      totalItens += p.quantidade_adicional;
-    }
-
-    valorTotal += p.preco_total;
-  });
-
-  // Exibe todos os itens como um único pedido
-  if (itensPedido.length > 0) {
-    recibo += `Pedido: ${itensPedido.join(" + ")}\n`;
-  }
-
-  // Exibe os adicionais separadamente após o pedido
-  if (itensAdicionais.length > 0) {
-    recibo += `Adicionais: ${itensAdicionais.join(" + ")}\n`;
-  }
-
-  const ultimo: Pedido | undefined = pedidos[pedidos.length - 1];
-
-  if (ultimo) {
-    recibo += `
-OBSERVAÇÕES: ${ultimo.observacoes}
-FORMA DE PAGAMENTO: ${ultimo.forma_pagamento}
-CUPOM: ${ultimo.cupom}
-VALOR TOTAL: R$ ${valorTotal.toFixed(2)}
-`;
-  }
-
-  recibo += `\nTOTAL DE ITENS: ${totalItens}`;
-  return recibo;
-}
-
-
-btnEnviar.addEventListener("click", () => {
-  if (pedidos.length === 0) {
-    alert("Adicione pelo menos um item ao pedido!");
-    return;
-  }
-
-
-  const cliente: Cliente = {
-    cliente_id: `${inputCPF.value.trim()}-${Date.now()}`, // exemplo de ID único
-    cpf: inputCPF.value.trim(),
-    nome: inputNome.value.trim(),
-    telefone: inputTelefone.value.trim(),
-    endereco: inputEndereco.value.trim(),
-  };
-
-  const cpfValido = /^\d{11}$/.test(cliente.cpf);
-  const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(cliente.nome);
-  const telefoneValido = /^\d+$/.test(cliente.telefone);
-
-  if (!cpfValido) {
-    alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
-    return;
-  }
-
-  if (!nomeValido) {
-    alert("Nome inválido! Deve conter no mínimo 3 letras e apenas letras.");
-    return;
-  }
-
-  if (!telefoneValido) {
-    alert("Telefone inválido! Deve conter apenas números.");
-    return;
-  }
-
-  // Gera recibo e CSV
-  const csv = gerarCSV(cliente, pedidos);
-  const recibo = gerarRecibo(cliente, pedidos);
-  baixarArquivo("recibo.txt", recibo, "text/plain");
-  console.log("CSV armazenado internamente:\n", csv);
-
-  // Envia para o backend
-  console.log("Enviando para backend:", JSON.stringify({ cliente, pedidos }, null, 2));
-  fetch("http://localhost:3000/enviar-pedido", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cliente, pedidos }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message || "Pedido enviado com sucesso!");
-      pedidos.length = 0;
-      blocoNotas.innerHTML = "";
-    })
-    .catch((err) => {
-      console.error("Erro ao enviar pedido:", err);
-      alert("Erro ao enviar pedido.");
-    });
-
-  // Limpa todos os campos após envio
-  inputCPF.value = "";
-  inputNome.value = "";
-  inputTelefone.value = "";
-  inputEndereco.value = "";
-  inputPagamento.value = "";
-  inputObservacoes.value = "";
-  inputCupom.value = "";
-
-  sabor.selectedIndex = 0;
-  tamanho.selectedIndex = 0;
-  qtdPizza.value = "1";
-
-  bebida.selectedIndex = 0;
-  qtdBebida.value = "1";
-
-  sobremesa.selectedIndex = 0;
-  qtdSobremesa.value = "1";
-
-  adicional.selectedIndex = 0;
-  qtdAdicional.value = "1";
-
-  blocoNotas.innerHTML = "";
-  valorTotal.innerHTML = "";
-
-}); */ 
 //# sourceMappingURL=pedido.js.map
