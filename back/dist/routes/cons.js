@@ -143,5 +143,47 @@ routercons.get("/verificar-cliente/:cpf", (req, res) => __awaiter(void 0, void 0
         return res.status(500).json({ error: "Erro ao verificar CPF." });
     }
 }));
+// historico de produtos vendidos
+// rota mais-vendido.ts
+routercons.get("/mais-vendido", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tipo = String(req.query.tipo);
+    const dataInicio = String(req.query.dataInicio);
+    const dataFim = String(req.query.dataFim);
+    // mapa de colunas por categoria
+    const mapa = {
+        "1": { nome: "pizza", quantidade: "quantidade_pizza", titulo: "Pizzas" },
+        "2": { nome: "bebida", quantidade: "quantidade_bebida", titulo: "Bebidas" },
+        "3": { nome: "sobremesa", quantidade: "quantidade_sobremesa", titulo: "Sobremesas" },
+        "4": { nome: "adicional", quantidade: "quantidade_adicional", titulo: "Adicionais" },
+    };
+    const colunas = mapa[tipo];
+    if (!colunas)
+        return res.status(400).json({ error: "Tipo inválido." });
+    if (!dataInicio || !dataFim)
+        return res.status(400).json({ error: "Período inválido." });
+    try {
+        const result = yield pool.query(`SELECT ${colunas.nome} AS produto,
+              SUM(${colunas.quantidade}) AS total_unidades,
+              COUNT(*) AS pedidos,
+              MIN(data_pedido) AS primeira_venda,
+              MAX(data_pedido) AS ultima_venda
+       FROM pedidos
+       WHERE data_pedido BETWEEN $1 AND $2
+       GROUP BY ${colunas.nome}
+       ORDER BY total_unidades DESC
+       LIMIT 1`, [dataInicio, `${dataFim} 23:59:59`]);
+        if (result.rows.length === 0) {
+            return res.json({ error: "Nenhuma venda encontrada nesse período." });
+        }
+        return res.json({
+            categoria: colunas.titulo,
+            maisVendido: result.rows[0],
+        });
+    }
+    catch (err) {
+        console.error("Erro:", err);
+        return res.status(500).json({ error: "Erro ao buscar vendas." });
+    }
+}));
 export default routercons;
 //# sourceMappingURL=cons.js.map

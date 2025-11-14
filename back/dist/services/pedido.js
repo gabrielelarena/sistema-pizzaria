@@ -32,6 +32,7 @@ const blocoNotas = document.getElementById("blocoNotas");
 const btnAdicionar = document.getElementById("btnAdicionar");
 const btnEnviar = document.getElementById("btnEnviar");
 const btnValidarCupom = document.getElementById("btnValidarCupom");
+let freteGratis = false;
 const pedidos = [];
 btnAdicionar.addEventListener("click", () => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
@@ -104,7 +105,6 @@ btnAdicionar.addEventListener("click", () => {
         alert("Erro ao calcular preço do pedido.");
     });
 });
-let freteGratis = false;
 // Atualiza visualmente o bloco de notas
 function atualizarBlocoNotas() {
     blocoNotas.innerHTML = "";
@@ -258,60 +258,66 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
         alert("Nenhum pedido encontrado para validar cupons.");
         return;
     }
+    // ✅ aqui o TS já sabe que não é undefined
     const ultimo = pedidos[pedidos.length - 1];
     const cupom = inputCupom.value.trim().toUpperCase();
     let valido = false;
     if (!cupom) {
+        // se não digitou nada, apenas limpa
         ultimo.cupom = "";
         alert("Nenhum cupom informado.");
         return;
     }
     switch (cupom) {
         case "PRIMEIRACOMPRA": {
-            const res = yield fetch(`http://localhost:3000/verificar-cliente/${encodeURIComponent(ultimo.cpf)}`);
+            console.log("Verificando cliente com CPF:", ultimo.cpf);
+            const res = yield fetch(`http://localhost:3000/verificar-cliente/${encodeURIComponent(ultimo.cpf)}`, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
             if (!res.ok) {
-                alert("Erro ao verificar CPF.");
+                console.error("Resposta não OK:", res.status, res.statusText);
+                alert("Erro ao verificar CPF. Tente novamente.");
                 break;
             }
             const data = yield res.json();
+            console.log("Resultado verificação:", data);
             if (!data.existe) {
                 freteGratis = true;
-                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: FRETE GRÁTIS!");
                 valido = true;
             }
             else {
-                ultimo.cupom = ""; // limpa se inválido
                 alert("Cupom inválido: já existe cliente com este CPF.");
             }
             break;
         }
         case "CONTO20":
+            // soma todas as pizzas de todos os pedidos
             const totalPizzas = pedidos.reduce((acc, p) => acc + p.quantidade_pizza, 0);
             if (totalPizzas >= 3) {
+                // aplica desconto apenas sobre os itens (sem frete)
                 pedidos.forEach(p => {
                     const desconto = p.quantidade_pizza > 0 ? p.preco_total * 0.2 : 0;
                     p.preco_total -= desconto;
                 });
-                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: 20% de desconto aplicado nas pizzas!");
                 valido = true;
             }
             else {
-                ultimo.cupom = "";
                 alert("Cupom inválido: precisa de pelo menos 3 pizzas no total.");
             }
             break;
         case "PUDIMZIM":
+            // soma o valor de todos os pedidos já adicionados
             const totalPedidos = pedidos.reduce((acc, p) => acc + p.preco_total, 0);
             if (totalPedidos > 100) {
-                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: você ganhou um pudim!");
                 valido = true;
+                // aqui você pode marcar no bloco de notas que o pudim foi incluído
                 blocoNotas.innerHTML += `<p><strong>Promoção:</strong> Pudim grátis incluído</p>`;
             }
             else {
-                ultimo.cupom = "";
                 alert("Cupom inválido: só vale se gastar mais de R$100 no total da compra.");
             }
             break;
@@ -319,18 +325,16 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             const temGrande = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("G"));
             const temMedia = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("M"));
             if ((temGrande && ultimo.tamanho.includes("M")) || (temMedia && ultimo.tamanho.includes("G"))) {
-                ultimo.cupom = cupom; // ✅ salva cupom válido
                 alert("Cupom válido: ganhou uma Coca 2L!");
                 valido = true;
             }
             else {
-                ultimo.cupom = "";
                 alert("Cupom inválido: precisa pedir M e G do mesmo sabor.");
             }
             break;
         default:
-            ultimo.cupom = ""; // 🔄 limpa se inválido
             alert("Cupom inválido, corrija antes de enviar.");
+            ultimo.cupom = ""; // 🔄 limpa se inválido
     }
     // Feedback visual simplificado
     inputCupom.classList.remove("is-valid", "is-invalid");
