@@ -1,4 +1,4 @@
-> esta faltando somente verificação cpf
-> exportar mais pedidos detalhados
-> e fim!
+> esta faltando somente verificação cpf <br>
+> exportar mais pedidos detalhados <br>
+> e fim! <br>
 > não aguento mais!!!!!!!!
