@@ -89,3 +89,4 @@ btnConsultaCliente.addEventListener("click", () => {
       resultadoClienteDiv.innerHTML = `<p class="text-danger">Erro ao consultar cliente.</p>`;
     });
 });
+

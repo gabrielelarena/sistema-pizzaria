@@ -67,6 +67,10 @@ a:active {
     transform: translateY(1px) scale(.995);
 }
 
+.is-valid { border: 2px solid green; }
+.is-invalid { border: 2px solid red; }
+
+
 /*configurações do carrossel*/
 
 .carousel {

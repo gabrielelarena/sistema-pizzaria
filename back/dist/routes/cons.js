@@ -124,5 +124,24 @@ routercons.get("/historico-produto", (req, res) => __awaiter(void 0, void 0, voi
         return res.status(500).json({ error: "Erro ao buscar vendas." });
     }
 }));
+routercons.get("/verificar-cliente/:cpf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cpf } = req.params;
+    if (!cpf) {
+        return res.status(400).json({ error: "CPF é obrigatório." });
+    }
+    try {
+        const result = yield pool.query("SELECT 1 FROM clientes WHERE cpf = $1 LIMIT 1", [cpf]);
+        if (result.rows.length > 0) {
+            return res.json({ existe: true });
+        }
+        else {
+            return res.json({ existe: false });
+        }
+    }
+    catch (err) {
+        console.error("Erro ao verificar CPF:", err);
+        return res.status(500).json({ error: "Erro ao verificar CPF." });
+    }
+}));
 export default routercons;
 //# sourceMappingURL=cons.js.map
