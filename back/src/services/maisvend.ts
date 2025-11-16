@@ -3,6 +3,7 @@ const ListaVendasDiv = document.getElementById("listaVendas") as HTMLDivElement;
 
 // Variáveis globais
 let vendasProduto: any[] = [];
+
 let maisVendidoProduto: {
   produto: string;
   total_unidades: number;

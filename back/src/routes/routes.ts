@@ -9,25 +9,25 @@ const router = express.Router();
 router.post('/enviar-pedido', async (req, res) => {
   const { cliente, pedidos }: { cliente: Cliente; pedidos: Pedido[] } = req.body;
 
-  console.log("Recebido do frontend:", { cliente, pedidos });
-  console.log("Dados recebidos:", JSON.stringify(req.body, null, 2));
-
   try {
     const enderecoFinal = cliente.endereco?.trim() || "Retirar no local";
 
     const clienteResult = await pool.query(
       `INSERT INTO clientes (cpf, nome, telefone, endereco)
-       VALUES ($1, $2, $3, $4) RETURNING id`,
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (cpf) DO UPDATE
+         SET nome = EXCLUDED.nome,
+             telefone = EXCLUDED.telefone,
+             endereco = EXCLUDED.endereco
+       RETURNING id`,
       [cliente.cpf, cliente.nome, cliente.telefone, enderecoFinal]
     );
 
     const clienteId = clienteResult.rows[0].id;
 
+    // Agora insere os pedidos
     for (const p of pedidos) {
       console.log("Inserindo pedido:", p);
-      if (!clienteId) {
-        throw new Error("clienteId está indefinido");
-      }
 
       await pool.query(
         `INSERT INTO pedidos (
@@ -42,7 +42,7 @@ router.post('/enviar-pedido', async (req, res) => {
         [
           clienteId,
           p.cpf,
-          p.data_pedido,
+          p.data_pedido, // precisa estar no formato certo!
           p.pizza,
           p.quantidade_pizza,
           p.tamanho,
@@ -61,8 +61,8 @@ router.post('/enviar-pedido', async (req, res) => {
     }
 
     return res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
-  } catch (error) {
-    console.error('Erro ao salvar pedido:', error);
+  } catch (error: any) {
+    console.error('Erro ao salvar pedido:', error.message, error.stack);
     return res.status(500).json({ error: 'Erro ao salvar pedido.' });
   }
 });

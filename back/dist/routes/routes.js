@@ -14,18 +14,19 @@ const router = express.Router();
 router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { cliente, pedidos } = req.body;
-    console.log("Recebido do frontend:", { cliente, pedidos });
-    console.log("Dados recebidos:", JSON.stringify(req.body, null, 2));
     try {
         const enderecoFinal = ((_a = cliente.endereco) === null || _a === void 0 ? void 0 : _a.trim()) || "Retirar no local";
         const clienteResult = yield pool.query(`INSERT INTO clientes (cpf, nome, telefone, endereco)
-       VALUES ($1, $2, $3, $4) RETURNING id`, [cliente.cpf, cliente.nome, cliente.telefone, enderecoFinal]);
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (cpf) DO UPDATE
+         SET nome = EXCLUDED.nome,
+             telefone = EXCLUDED.telefone,
+             endereco = EXCLUDED.endereco
+       RETURNING id`, [cliente.cpf, cliente.nome, cliente.telefone, enderecoFinal]);
         const clienteId = clienteResult.rows[0].id;
+        // Agora insere os pedidos
         for (const p of pedidos) {
             console.log("Inserindo pedido:", p);
-            if (!clienteId) {
-                throw new Error("clienteId está indefinido");
-            }
             yield pool.query(`INSERT INTO pedidos (
           cliente_id, cpf, data_pedido, pizza, quantidade_pizza, tamanho,
           bebida, quantidade_bebida, sobremesa, quantidade_sobremesa,
@@ -37,7 +38,7 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
         )`, [
                 clienteId,
                 p.cpf,
-                p.data_pedido,
+                p.data_pedido, // precisa estar no formato certo!
                 p.pizza,
                 p.quantidade_pizza,
                 p.tamanho,
@@ -56,7 +57,7 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(200).json({ message: 'Pedido armazenado com sucesso!' });
     }
     catch (error) {
-        console.error('Erro ao salvar pedido:', error);
+        console.error('Erro ao salvar pedido:', error.message, error.stack);
         return res.status(500).json({ error: 'Erro ao salvar pedido.' });
     }
 }));

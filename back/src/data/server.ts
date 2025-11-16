@@ -4,6 +4,7 @@ import router from '../routes/routes.js';
 import routerprod from '../routes/produtos.js';
 import routhercons from '../routes/cons.js';
 import routherpreco from '../routes/precos.js';
+import routherverif from '../routes/verificacd.js';
 
 const app = express();
 const port = 3000;
@@ -14,6 +15,7 @@ app.use(router);
 app.use(routerprod);
 app.use(routhercons);
 app.use(routherpreco);
+app.use(routherverif);
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);

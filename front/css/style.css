@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap');
 
+/*configurações gerais*/
 
 body {
     font-family: "Parkinsans", sans-serif;
-    cursor: url("img/cursor-1.png") 16 16, auto;
+    cursor: url("../img/cursor-1.png") 16 16, auto;
 }
 
 h2 {
@@ -18,6 +19,8 @@ h3 {
     color: #0a430c;
 }
 
+
+/*forms e inputs*/
 
 .input-group,
 form {
@@ -43,11 +46,21 @@ ul {
     border-radius: 20px;
 }
 
+.is-valid {
+    border: 2px solid green;
+}
+
+.is-invalid {
+    border: 2px solid red;
+}
+
+/*cursor de pizza*/
+
 button,
 a {
-    cursor: url("img/cursor-2.png") 16 16, auto;
+    cursor: url("../img/cursor-2.png") 16 16, auto;
     font-family: "Parkinsans", sans-serif;
-    cursor: url('img/cursor.cur'), url('img/cursor-1.png') 16 16, auto !important;
+    cursor: url('../img/cursor-1.png'), url('../img/cursor-1.png') 16 16, auto !important;
 }
 
 button,
@@ -55,7 +68,7 @@ button,
 a,
 .nav-link,
 .dropdown-item {
-    cursor: url('img/cursor-pointer.cur'), url('img/cursor-1.png') 16 16, pointer !important;
+    cursor: url('../img/cursor-pointer.cur'), url('../img/cursor-1.png') 16 16, pointer !important;
     transition: transform .06s ease;
     -webkit-tap-highlight-color: transparent;
 }
@@ -63,13 +76,9 @@ a,
 button:active,
 .btn:active,
 a:active {
-    cursor: url('img/cursor-click.cur'), url('img/cursor-2.png') 16 16, pointer !important;
+    cursor: url('../img/cursor-click.cur'), url('../img/cursor-2.png') 16 16, pointer !important;
     transform: translateY(1px) scale(.995);
 }
-
-.is-valid { border: 2px solid green; }
-.is-invalid { border: 2px solid red; }
-
 
 /*configurações do carrossel*/
 
@@ -119,7 +128,7 @@ a:active {
 /*configuração das fotos com links*/
 
 .container {
-    width: 1400px;
+    width: 1000px;
     position: relative;
     display: flex;
     padding-top: 30px;
@@ -182,10 +191,16 @@ p {
     text-align: center;
 }
 
+/*Media-Queries*/
 
 @media (max-width: 700px) {
     .input-group {
         width: 95vw;
+    }
+    .container {
+        width: 80%;
+        display: block;
+        padding-top: 30px;
     }
 }
 
@@ -199,4 +214,53 @@ p {
         margin-top: 100px;
     }
 
+}
+
+@media (max-width: 1000px) {
+    .container {
+        width: 80%;
+        position: relative;
+        display: flex;
+        padding-top: 30px;
+        justify-content: space-around;
+    }
+
+    .container .card .face {
+        width: 200px;
+        height: 200px;
+        transition: 0.5s;
+        border-radius: 18px;
+    }
+
+    .container .card .face.face1 .content img {
+        max-width: 170px;
+        max-height: 190px;
+    }
+
+}
+
+@media (max-width: 770px) {
+    .container, .container-sm {
+        width: 300px;
+        position: relative;
+        display: flex;
+        padding-top: 30px;
+        justify-content: space-evenly;
+        flex-direction: column;
+        align-content: center;
+        align-items: center;
+    }
+
+    .container .card .face {
+        width: 400px;
+        margin-top: 20px;
+        height: 400px;
+        transition: 0;
+        border-radius: 18px;
+    }
+
+    .container .card .face.face1 .content img {
+        max-width: 400px;
+        max-height: 300px;
+    }
 }

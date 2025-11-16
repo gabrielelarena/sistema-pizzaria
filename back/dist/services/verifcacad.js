@@ -1,0 +1,48 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCadastrar = document.getElementById("btnCadastrar");
+    const btnCadastro = document.getElementById("btnCadastro");
+    function getFormData() {
+        return {
+            cpf: document.getElementById("cpf").value,
+            nome: document.getElementById("nome").value,
+            telefone: document.getElementById("telefone").value,
+            endereco: document.getElementById("endereco").value
+        };
+    }
+    btnCadastrar.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+        const dados = getFormData();
+        const res = yield fetch("http://localhost:3000/clientes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+        const msg = yield res.json();
+        alert(msg.message || msg.error);
+    }));
+    btnCadastro.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+        const dados = getFormData();
+        const res = yield fetch("http://localhost:3000/verificar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+        const msg = yield res.json();
+        alert(msg.message || msg.error);
+        if (msg.clienteBanco) {
+            document.getElementById("nome").value = msg.clienteBanco.nome;
+            document.getElementById("telefone").value = msg.clienteBanco.telefone;
+            document.getElementById("endereco").value = msg.clienteBanco.endereco;
+        }
+    }));
+});
+//# sourceMappingURL=verifcacad.js.map

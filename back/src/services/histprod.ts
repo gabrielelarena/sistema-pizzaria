@@ -8,7 +8,6 @@ const listaVendasDiv = document.getElementById("lista-vendas") as HTMLDivElement
 const btnLimparRelatorio = document.getElementById("limparRelatorio") as HTMLButtonElement;
 const btnExportarTxt = document.getElementById("exportarTxt") as HTMLButtonElement;
 
-
 btnProcurarProd.addEventListener("click", () => {
     listaVendasDiv.innerHTML = "";
     btnLimparRelatorio.style.display = "none";
