@@ -8,15 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import express from 'express';
-import bcrypt from 'bcrypt';
-import { pool } from '../data/db.js';
-const router = express.Router();
+import bcrypt from 'bcrypt'; // Biblioteca para criptografar senhas
+import { pool } from '../data/db.js'; // Conexão com o banco PostgreSQL
+const router = express.Router(); // Cria um roteador do Express
+// -----------------------------
 // ROTA: Enviar pedido
+// -----------------------------
 router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    // Recebe cliente e pedidos do corpo da requisição
     const { cliente, pedidos } = req.body;
     try {
+        // Se não houver endereço, define "Retirar no local"
         const enderecoFinal = ((_a = cliente.endereco) === null || _a === void 0 ? void 0 : _a.trim()) || "Retirar no local";
+        // Insere ou atualiza cliente (ON CONFLICT garante que não duplica CPF)
         const clienteResult = yield pool.query(`INSERT INTO clientes (cpf, nome, telefone, endereco)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (cpf) DO UPDATE
@@ -24,8 +29,8 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
              telefone = EXCLUDED.telefone,
              endereco = EXCLUDED.endereco
        RETURNING id`, [cliente.cpf, cliente.nome, cliente.telefone, enderecoFinal]);
-        const clienteId = clienteResult.rows[0].id;
-        // Agora insere os pedidos
+        const clienteId = clienteResult.rows[0].id; // Pega o ID do cliente
+        // Insere cada pedido associado ao cliente
         for (const p of pedidos) {
             console.log("Inserindo pedido:", p);
             yield pool.query(`INSERT INTO pedidos (
@@ -39,7 +44,7 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
         )`, [
                 clienteId,
                 p.cpf,
-                p.data_pedido, // precisa estar no formato certo!
+                p.data_pedido, // precisa estar no formato DD/MM/YYYY - HH:MM
                 p.pizza,
                 p.quantidade_pizza,
                 p.tamanho,
@@ -62,19 +67,25 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(500).json({ error: 'Erro ao salvar pedido.' });
     }
 }));
-// ROTA: Clientes
+// -----------------------------
+// ROTA: Criar cliente
+// -----------------------------
 router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf, nome, telefone, endereco, senha } = req.body;
+    // Validação dos campos obrigatórios
     if (!cpf || !nome || !telefone || !senha) {
         return res.status(400).json({ error: 'CPF, nome, telefone e senha são obrigatórios.' });
     }
     const enderecoFinal = (endereco === null || endereco === void 0 ? void 0 : endereco.trim()) || "Retirar no local";
     try {
+        // Verifica se já existe cliente com esse CPF
         const existe = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
         if (existe.rows.length > 0) {
             return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
         }
+        // Criptografa a senha antes de salvar
         const senhaHash = yield bcrypt.hash(senha, 10);
+        // Insere novo cliente
         yield pool.query('INSERT INTO clientes (cpf, nome, telefone, endereco, senha) VALUES ($1, $2, $3, $4, $5)', [cpf, nome, telefone, enderecoFinal, senhaHash]);
         return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
     }
@@ -83,6 +94,9 @@ router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, functio
         return res.status(500).json({ error: 'Erro ao cadastrar cliente.' });
     }
 }));
+// -----------------------------
+// ROTA: Atualizar cliente
+// -----------------------------
 router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     const { nome, telefone, endereco, senha } = req.body;
@@ -91,6 +105,7 @@ router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     const campos = [];
     const valores = [];
+    // Monta dinamicamente os campos que serão atualizados
     if (nome) {
         campos.push(`nome = $${valores.length + 1}`);
         valores.push(nome);
@@ -123,6 +138,9 @@ router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(500).json({ error: 'Erro ao atualizar cliente.' });
     }
 }));
+// -----------------------------
+// ROTA: Excluir cliente
+// -----------------------------
 router.delete('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     if (!cpf) {
@@ -137,5 +155,5 @@ router.delete('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(500).json({ error: 'Erro ao excluir cliente.' });
     }
 }));
-export default router;
+export default router; // Exporta o roteador para ser usado no servidor principal
 //# sourceMappingURL=routes.js.map

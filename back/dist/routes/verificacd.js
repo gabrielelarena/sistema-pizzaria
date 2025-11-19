@@ -19,25 +19,32 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import express from 'express';
-import { pool } from '../data/db.js';
-import bcrypt from 'bcrypt';
-const routerverif = express.Router();
+import { pool } from '../data/db.js'; // Conexão com o banco PostgreSQL
+import bcrypt from 'bcrypt'; // Biblioteca para criptografar e comparar senhas
+const routerverif = express.Router(); // Cria um roteador do Express
+// -----------------------------
+// ROTA: POST /verificar
+// -----------------------------
 routerverif.post('/verificar', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cpf, senha } = req.body;
+    const { cpf, senha } = req.body; // Recebe CPF e senha do corpo da requisição
+    // Validação dos campos obrigatórios
     if (!cpf || !senha) {
         return res.status(400).json({ error: 'CPF e senha são obrigatórios.' });
     }
     try {
+        // Busca cliente pelo CPF
         const result = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
         if (result.rows.length === 0) {
+            // Se não encontrar, retorna erro
             return res.status(404).json({ error: 'Você não tem cadastro, clique em se cadastrar.' });
         }
         const clienteBanco = result.rows[0];
-        // 🔑 compara senha digitada com hash do banco
+        // 🔑 Compara senha digitada com hash armazenado no banco
         const senhaValida = yield bcrypt.compare(senha, clienteBanco.senha);
         if (!senhaValida) {
             return res.status(401).json({ error: 'Senha incorreta. Verifique CPF e senha.' });
         }
+        // Retorna dados do cliente (sem expor a senha)
         return res.json({
             message: 'Ok, cadastro existente!',
             clienteBanco: {
@@ -52,17 +59,21 @@ routerverif.post('/verificar', (req, res) => __awaiter(void 0, void 0, void 0, f
         return res.status(500).json({ error: 'Erro ao verificar cadastro.' });
     }
 }));
-// GET /verificar-cliente/:cpf
+// -----------------------------
+// ROTA: GET /verificar-cliente/:cpf
+// -----------------------------
 routerverif.get('/verificar-cliente/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     try {
+        // Busca cliente pelo CPF
         const clienteResult = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
         if (clienteResult.rows.length === 0) {
-            // não existe cliente → cupom válido
+            // Se não existe cliente, retorna existe=false e temPedido=false
             return res.json({ existe: false, temPedido: false });
         }
+        // Busca pedidos associados ao CPF
         const pedidosResult = yield pool.query('SELECT * FROM pedidos WHERE cpf = $1', [cpf]);
-        const temPedido = pedidosResult.rows.length > 0;
+        const temPedido = pedidosResult.rows.length > 0; // Verifica se há pedidos
         return res.json({ existe: true, temPedido });
     }
     catch (err) {
@@ -70,18 +81,23 @@ routerverif.get('/verificar-cliente/:cpf', (req, res) => __awaiter(void 0, void 
         return res.status(500).json({ error: 'Erro ao verificar cliente/pedido.' });
     }
 }));
+// -----------------------------
+// ROTA: GET /usar-cadastro/:cpf
+// -----------------------------
 routerverif.get('/usar-cadastro/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
     if (!cpf) {
         return res.status(400).json({ error: 'CPF inválido.' });
     }
     try {
+        // Busca cliente pelo CPF
         const result = yield pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Cliente não encontrado.' });
         }
-        // ⚠️ nunca retorne a senha para o cliente
+        // ⚠️ Nunca retorne a senha para o cliente
         const _a = result.rows[0], { senha } = _a, clienteSemSenha = __rest(_a, ["senha"]);
+        // Retorna dados do cliente sem a senha
         return res.json({ cliente: clienteSemSenha });
     }
     catch (err) {
@@ -89,5 +105,5 @@ routerverif.get('/usar-cadastro/:cpf', (req, res) => __awaiter(void 0, void 0, v
         return res.status(500).json({ error: 'Erro ao buscar cadastro.' });
     }
 }));
-export default routerverif;
+export default routerverif; // Exporta o roteador para ser usado no servidor principal
 //# sourceMappingURL=verificacd.js.map

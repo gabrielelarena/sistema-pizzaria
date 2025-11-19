@@ -1,4 +1,5 @@
 "use strict";
+// Referências aos elementos do DOM
 const btnProcurarProd = document.getElementById("procurarprod");
 const produtoSelect = document.getElementById("produtoesc");
 const nomeProdutoInput = document.getElementById("NomeProduto");
@@ -7,19 +8,27 @@ const dataFimProd = document.getElementById("DataFim");
 const listaVendasDiv = document.getElementById("lista-vendas");
 const btnLimparRelatorio = document.getElementById("limparRelatorio");
 const btnExportarTxt = document.getElementById("exportarTxt");
+// -----------------------------
+// Botão "Procurar Produto"
+// -----------------------------
 btnProcurarProd.addEventListener("click", () => {
+    // Limpa resultados anteriores
     listaVendasDiv.innerHTML = "";
     btnLimparRelatorio.style.display = "none";
     btnExportarTxt.style.display = "none";
+    // Captura valores dos inputs
     const tipo = produtoSelect.value;
     const nome = nomeProdutoInput.value.trim();
     const dataInicio = dataInicioProd.value;
     const dataFim = dataFimProd.value;
+    // Validação
     if (!tipo || tipo === "Selecione um produto" || !nome || !dataInicio || !dataFim) {
         listaVendasDiv.innerHTML = `<p class="text-danger">Preencha todos os campos para consultar.</p>`;
         return;
     }
+    // Monta query string
     const params = new URLSearchParams({ tipo, nome, dataInicio, dataFim });
+    // Requisição GET para histórico de produto
     fetch(`http://localhost:3000/historico-produto?${params.toString()}`)
         .then(res => res.json())
         .then(data => {
@@ -27,7 +36,9 @@ btnProcurarProd.addEventListener("click", () => {
             listaVendasDiv.innerHTML = `<p class="text-danger">${data.error}</p>`;
             return;
         }
+        // Salva vendas retornadas
         vendasProduto = data.vendas;
+        // Monta resumo das vendas
         const resumo = vendasProduto.map(v => {
             const dataFormatada = new Date(v.data_pedido).toLocaleDateString("pt-BR", {
                 day: "2-digit",
@@ -35,6 +46,7 @@ btnProcurarProd.addEventListener("click", () => {
             });
             return `${v.quantidade} ${data.produto} - ${dataFormatada}`;
         });
+        // Exibe relatório na tela
         listaVendasDiv.innerHTML = `
         <div class="alert alert-success">
           <strong>${data.produto}</strong> vendido em ${vendasProduto.length} pedido(s).
@@ -43,6 +55,7 @@ btnProcurarProd.addEventListener("click", () => {
           ${resumo.map(item => `<li class="list-group-item">${item}</li>`).join("")}
         </ul>
       `;
+        // Mostra botões de limpar e exportar
         btnLimparRelatorio.style.display = "inline-block";
         btnExportarTxt.style.display = "block";
     })
@@ -51,8 +64,11 @@ btnProcurarProd.addEventListener("click", () => {
         listaVendasDiv.innerHTML = `<p class="text-danger">Erro ao consultar produto.</p>`;
     });
 });
+// -----------------------------
 // Botão "Limpar Relatório"
+// -----------------------------
 btnLimparRelatorio.addEventListener("click", () => {
+    // Reseta campos
     produtoSelect.value = "Selecione um produto";
     nomeProdutoInput.value = "";
     dataInicioProd.value = "";
@@ -60,16 +76,19 @@ btnLimparRelatorio.addEventListener("click", () => {
     listaVendasDiv.innerHTML = "";
     btnLimparRelatorio.style.display = "none";
     btnExportarTxt.style.display = "none";
-    ListaVendasDiv.innerHTML = "";
+    // ⚠️ Atenção: aqui há um erro de digitação → `ListaVendasDiv` (com L maiúsculo) não existe.
+    // O correto seria `listaVendasDiv.innerHTML = "";`
     vendasProduto = [];
     maisVendidoProduto = null;
     maisVendidoPedidos = [];
 });
+// -----------------------------
 // Botão "Exportar TXT"
+// -----------------------------
 btnExportarTxt.addEventListener("click", () => {
     var _a, _b;
     let conteudo = "";
-    // Caso 1: relatório detalhado
+    // Caso 1: relatório detalhado de vendas do produto
     if (vendasProduto && vendasProduto.length > 0) {
         const nome = nomeProdutoInput.value.trim();
         const tipoSelecionado = ((_a = produtoSelect.options[produtoSelect.selectedIndex]) === null || _a === void 0 ? void 0 : _a.text) || "Produto";
@@ -93,7 +112,7 @@ btnExportarTxt.addEventListener("click", () => {
             ...linhas
         ].join("\n");
     }
-    // Caso 2: relatório do mais vendido
+    // Caso 2: relatório do produto mais vendido
     else if (maisVendidoProduto) {
         const tipoSelecionado = ((_b = produtoSelect.options[produtoSelect.selectedIndex]) === null || _b === void 0 ? void 0 : _b.text) || "Categoria";
         const primeiraData = new Date(maisVendidoProduto.primeira_venda).toLocaleDateString("pt-BR");
@@ -127,6 +146,7 @@ btnExportarTxt.addEventListener("click", () => {
         alert("Nenhum relatório para exportar.");
         return;
     }
+    // Cria arquivo TXT e dispara download
     const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

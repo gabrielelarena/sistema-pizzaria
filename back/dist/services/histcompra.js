@@ -1,5 +1,6 @@
 "use strict";
 var _a;
+// Referências aos elementos do DOM
 const btnBuscarCompras = document.getElementById("btnBuscarCompras");
 const cpfInput = document.getElementById("cpfClienteH");
 const dataInicioInput = document.getElementById("dataInicioCliente");
@@ -7,23 +8,30 @@ const dataFimInput = document.getElementById("dataFimCliente");
 const resultadoDiv = document.getElementById("resultadoCompras");
 const btnLimparTudo = document.getElementById("btnLimparTudo");
 const limparContainer = document.getElementById("limparContainer");
+// Inputs de cliente
 const cpfCliente = document.getElementById("CpfCliente");
 const nomeCliente = document.getElementById("NomeCliente");
 const telefoneClient = document.getElementById("TelefoneCliente");
 const enderecoCliente = document.getElementById("EnderecoCliente");
 const senhaCliente = document.getElementById("SenhaCliente");
 const btnAtualizar = document.getElementById("alterac");
+// Variável para armazenar histórico atual (usada na exportação)
 let historicoAtual = [];
+// -----------------------------
+// Atualizar cliente
+// -----------------------------
 btnAtualizar.addEventListener("click", () => {
     const cpf = cpfCliente.value.trim();
     if (!cpf) {
         alert("Informe o CPF do cliente para atualizar.");
         return;
     }
+    // Captura dados preenchidos
     const nome = nomeCliente.value.trim();
     const telefone = telefoneClient.value.trim();
     const endereco = enderecoCliente.value.trim();
     const senha = senhaCliente.value.trim();
+    // Monta objeto dinamicamente
     const cliente = {};
     if (nome)
         cliente.nome = nome;
@@ -37,6 +45,7 @@ btnAtualizar.addEventListener("click", () => {
         alert("Preencha ao menos um campo para atualizar.");
         return;
     }
+    // Requisição PUT para atualizar cliente
     fetch(`http://localhost:3000/clientes/${cpf}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -45,29 +54,34 @@ btnAtualizar.addEventListener("click", () => {
         .then(res => res.json())
         .then(data => {
         alert(data.message || data.error);
-        // opcional: limpar campos
-        cpfClienteInput.value = "";
-        nomeClienteInput.value = "";
-        telefoneClienteInput.value = "";
-        enderecoClienteInput.value = "";
-        senhaClienteInput.value = "";
+        // Limpa campos após atualização
+        cpfCliente.value = "";
+        nomeCliente.value = "";
+        telefoneClient.value = "";
+        enderecoCliente.value = "";
+        senhaCliente.value = "";
     })
         .catch(err => {
         console.error("Erro ao atualizar cliente:", err);
         alert("Erro ao atualizar cliente.");
     });
 });
+// -----------------------------
+// Buscar histórico de compras
+// -----------------------------
 btnBuscarCompras.addEventListener("click", () => {
     resultadoDiv.innerHTML = "";
-    historicoAtual = []; // limpa antes de buscar
+    historicoAtual = []; // limpa histórico anterior
     const cpf = cpfInput.value.trim();
     const dataInicio = dataInicioInput.value;
     const dataFim = dataFimInput.value;
+    // Validação
     if (!cpf || !dataInicio || !dataFim) {
         resultadoDiv.innerHTML = `<p class="text-danger">Preencha todos os campos para buscar o histórico.</p>`;
         return;
     }
     const params = new URLSearchParams({ cpf, dataInicio, dataFim });
+    // Requisição GET para histórico de compras
     fetch(`http://localhost:3000/historico-compras?${params.toString()}`)
         .then(res => res.json())
         .then(data => {
@@ -76,6 +90,7 @@ btnBuscarCompras.addEventListener("click", () => {
         }
         else {
             historicoAtual = data.pedidos; // salva para exportação
+            // Monta lista de pedidos
             const lista = data.pedidos.map((p) => `
           <div class="border rounded p-3 mb-3 bg-light">
             <h6><strong>Data:</strong> ${new Date(p.data_pedido).toLocaleString()}</h6>
@@ -92,18 +107,22 @@ btnBuscarCompras.addEventListener("click", () => {
         `).join("");
             resultadoDiv.innerHTML = `<h5 class="mb-3">Histórico de Compras:</h5>${lista}`;
         }
-        limparContainer.style.display = "flex"; // mostra o botão
+        limparContainer.style.display = "flex"; // mostra botão de limpar
     })
         .catch(err => {
         console.error("Erro ao buscar histórico:", err);
         resultadoDiv.innerHTML = `<p class="text-danger">Erro ao buscar histórico de compras.</p>`;
     });
 });
+// -----------------------------
+// Exportar histórico em TXT
+// -----------------------------
 (_a = document.getElementById("btnExportarTxt")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
     if (historicoAtual.length === 0) {
         alert("Nenhum histórico carregado para exportar.");
         return;
     }
+    // Monta linhas de texto
     const linhas = historicoAtual.map((p, i) => {
         return [
             `Pedido ${i + 1}`,
@@ -118,6 +137,7 @@ btnBuscarCompras.addEventListener("click", () => {
             "-----------------------------"
         ].filter(Boolean).join("\n");
     });
+    // Cria arquivo TXT e dispara download
     const blob = new Blob([linhas.join("\n\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -126,8 +146,11 @@ btnBuscarCompras.addEventListener("click", () => {
     a.click();
     URL.revokeObjectURL(url);
 });
+// -----------------------------
+// Limpar todos os campos
+// -----------------------------
 btnLimparTudo.addEventListener("click", () => {
-    // Limpa inputs
+    // Limpa inputs de cliente e histórico
     cpfInput.value = "";
     dataInicioInput.value = "";
     dataFimInput.value = "";
@@ -144,7 +167,7 @@ btnLimparTudo.addEventListener("click", () => {
         if (campo)
             campo.value = "";
     });
-    // Oculta o botão
+    // Oculta botão de limpar
     limparContainer.style.display = "none";
     alert("Todos os campos foram limpos!");
 });

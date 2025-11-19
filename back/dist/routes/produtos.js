@@ -9,18 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import express from 'express';
 import { pool } from '../data/db.js';
-const routerprod = express.Router();
+const routerprod = express.Router(); // Cria um roteador do Express para organizar as rotas de produtos
+// -----------------------------
 // ROTAS: Pizza
+// -----------------------------
+// Criar nova pizza
 routerprod.post('/pizzas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, tamanho, preco } = req.body;
+    // Validação dos campos obrigatórios
     if (!nome || !tamanho || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome, tamanho e preço.' });
     }
     try {
+        // Verifica se já existe pizza com mesmo nome e tamanho
         const existe = yield pool.query('SELECT * FROM pizzas WHERE nome = $1 AND tamanho = $2', [nome, tamanho]);
         if (existe.rows.length > 0) {
             return res.status(400).json({ error: 'Essa pizza já existe com esse tamanho.' });
         }
+        // Insere nova pizza
         yield pool.query('INSERT INTO pizzas (nome, tamanho, preco) VALUES ($1, $2, $3)', [nome, tamanho, preco]);
         return res.status(201).json({ message: 'Pizza cadastrada com sucesso!' });
     }
@@ -29,6 +35,7 @@ routerprod.post('/pizzas', (req, res) => __awaiter(void 0, void 0, void 0, funct
         return res.status(500).json({ error: 'Erro ao cadastrar pizza.' });
     }
 }));
+// Atualizar pizza existente
 routerprod.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -38,6 +45,7 @@ routerprod.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
     const campos = [];
     const valores = [];
+    // Monta dinamicamente os campos que serão atualizados
     if (nome) {
         campos.push(`nome = $${valores.length + 1}`);
         valores.push(nome);
@@ -64,6 +72,7 @@ routerprod.put('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.status(500).json({ error: 'Erro ao atualizar pizza.' });
     }
 }));
+// Excluir pizza
 routerprod.delete('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -79,7 +88,10 @@ routerprod.delete('/pizzas/:id', (req, res) => __awaiter(void 0, void 0, void 0,
         return res.status(500).json({ error: 'Erro ao excluir pizza.' });
     }
 }));
+// -----------------------------
 // ROTAS: Bebidas
+// -----------------------------
+// Criar nova bebida
 routerprod.post('/bebidas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
@@ -98,6 +110,7 @@ routerprod.post('/bebidas', (req, res) => __awaiter(void 0, void 0, void 0, func
         return res.status(500).json({ error: 'Erro ao cadastrar bebida.' });
     }
 }));
+// Atualizar bebida
 routerprod.put('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -129,6 +142,7 @@ routerprod.put('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
         return res.status(500).json({ error: 'Erro ao atualizar bebida.' });
     }
 }));
+// Excluir bebida
 routerprod.delete('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -144,17 +158,23 @@ routerprod.delete('/bebidas/:id', (req, res) => __awaiter(void 0, void 0, void 0
         return res.status(500).json({ error: 'Erro ao excluir bebida.' });
     }
 }));
+// -----------------------------
 // ROTAS: Sobremesas
+// -----------------------------
+// Criar nova sobremesa
 routerprod.post('/sobremesas', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
+    // Validação dos campos obrigatórios
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
     }
     try {
+        // Verifica se já existe sobremesa com esse nome
         const existe = yield pool.query('SELECT * FROM sobremesas WHERE nome = $1', [nome]);
         if (existe.rows.length > 0) {
             return res.status(400).json({ error: 'Essa sobremesa já está cadastrada.' });
         }
+        // Insere nova sobremesa
         yield pool.query('INSERT INTO sobremesas (nome, preco) VALUES ($1, $2)', [nome, preco]);
         return res.status(201).json({ message: 'Sobremesa cadastrada com sucesso!' });
     }
@@ -163,15 +183,18 @@ routerprod.post('/sobremesas', (req, res) => __awaiter(void 0, void 0, void 0, f
         return res.status(500).json({ error: 'Erro ao cadastrar sobremesa.' });
     }
 }));
+// Atualizar sobremesa existente
 routerprod.put('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
     const { nome, preco } = req.body;
+    // Validação do ID
     if (isNaN(idNum) || idNum <= 0) {
         return res.status(400).json({ error: 'ID inválido para atualização.' });
     }
     const campos = [];
     const valores = [];
+    // Monta dinamicamente os campos que serão atualizados
     if (nome) {
         campos.push(`nome = $${valores.length + 1}`);
         valores.push(nome);
@@ -194,9 +217,11 @@ routerprod.put('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0
         return res.status(500).json({ error: 'Erro ao atualizar sobremesa.' });
     }
 }));
+// Excluir sobremesa
 routerprod.delete('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
+    // Validação do ID
     if (isNaN(idNum) || idNum <= 0) {
         return res.status(400).json({ error: 'ID inválido para exclusão.' });
     }
@@ -209,17 +234,22 @@ routerprod.delete('/sobremesas/:id', (req, res) => __awaiter(void 0, void 0, voi
         return res.status(500).json({ error: 'Erro ao excluir sobremesa.' });
     }
 }));
+// -----------------------------
 // ROTAS: Adicionais
+// -----------------------------
+// Criar novo adicional
 routerprod.post('/adicionais', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nome, preco } = req.body;
     if (!nome || preco === undefined || preco === null || isNaN(preco)) {
         return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
     }
     try {
+        // Verifica se já existe adicional com esse nome
         const existe = yield pool.query('SELECT * FROM adicionais WHERE nome = $1', [nome]);
         if (existe.rows.length > 0) {
             return res.status(400).json({ error: 'Esse adicional já está cadastrado.' });
         }
+        // Insere novo adicional
         yield pool.query('INSERT INTO adicionais (nome, preco) VALUES ($1, $2)', [nome, preco]);
         return res.status(201).json({ message: 'Adicional cadastrado com sucesso!' });
     }
@@ -228,6 +258,7 @@ routerprod.post('/adicionais', (req, res) => __awaiter(void 0, void 0, void 0, f
         return res.status(500).json({ error: 'Erro ao cadastrar adicional.' });
     }
 }));
+// Atualizar adicional existente
 routerprod.put('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -259,6 +290,7 @@ routerprod.put('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0
         return res.status(500).json({ error: 'Erro ao atualizar adicional.' });
     }
 }));
+// Excluir adicional
 routerprod.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const idNum = parseInt(id);
@@ -274,5 +306,5 @@ routerprod.delete('/adicionais/:id', (req, res) => __awaiter(void 0, void 0, voi
         return res.status(500).json({ error: 'Erro ao excluir adicional.' });
     }
 }));
-export default routerprod;
+export default routerprod; // Exporta o roteador para ser usado no servidor principal
 //# sourceMappingURL=produtos.js.map
