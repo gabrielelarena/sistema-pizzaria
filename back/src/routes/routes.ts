@@ -1,18 +1,22 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
-import { pool } from '../data/db.js';
-import { Cliente, Pedido } from '../data/models.js';
+import bcrypt from 'bcrypt'; // Biblioteca para criptografar senhas
+import { pool } from '../data/db.js'; // Conexão com o banco PostgreSQL
+import { Cliente, Pedido } from '../data/models.js'; // Interfaces de tipos
 
-const router = express.Router();
+const router = express.Router(); // Cria um roteador do Express
 
+// -----------------------------
 // ROTA: Enviar pedido
-
+// -----------------------------
 router.post('/enviar-pedido', async (req, res) => {
+  // Recebe cliente e pedidos do corpo da requisição
   const { cliente, pedidos }: { cliente: Cliente; pedidos: Pedido[] } = req.body;
 
   try {
+    // Se não houver endereço, define "Retirar no local"
     const enderecoFinal = cliente.endereco?.trim() || "Retirar no local";
 
+    // Insere ou atualiza cliente (ON CONFLICT garante que não duplica CPF)
     const clienteResult = await pool.query(
       `INSERT INTO clientes (cpf, nome, telefone, endereco)
        VALUES ($1, $2, $3, $4)
@@ -24,9 +28,9 @@ router.post('/enviar-pedido', async (req, res) => {
       [cliente.cpf, cliente.nome, cliente.telefone, enderecoFinal]
     );
 
-    const clienteId = clienteResult.rows[0].id;
+    const clienteId = clienteResult.rows[0].id; // Pega o ID do cliente
 
-    // Agora insere os pedidos
+    // Insere cada pedido associado ao cliente
     for (const p of pedidos) {
       console.log("Inserindo pedido:", p);
 
@@ -43,7 +47,7 @@ router.post('/enviar-pedido', async (req, res) => {
         [
           clienteId,
           p.cpf,
-          p.data_pedido, // precisa estar no formato certo!
+          p.data_pedido, // precisa estar no formato DD/MM/YYYY - HH:MM
           p.pizza,
           p.quantidade_pizza,
           p.tamanho,
@@ -68,11 +72,13 @@ router.post('/enviar-pedido', async (req, res) => {
   }
 });
 
-// ROTA: Clientes
-
+// -----------------------------
+// ROTA: Criar cliente
+// -----------------------------
 router.post('/clientes', async (req, res) => {
   const { cpf, nome, telefone, endereco, senha } = req.body;
 
+  // Validação dos campos obrigatórios
   if (!cpf || !nome || !telefone || !senha) {
     return res.status(400).json({ error: 'CPF, nome, telefone e senha são obrigatórios.' });
   }
@@ -80,13 +86,17 @@ router.post('/clientes', async (req, res) => {
   const enderecoFinal = endereco?.trim() || "Retirar no local";
 
   try {
+    // Verifica se já existe cliente com esse CPF
     const existe = await pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
 
     if (existe.rows.length > 0) {
       return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
     }
 
+    // Criptografa a senha antes de salvar
     const senhaHash = await bcrypt.hash(senha, 10);
+
+    // Insere novo cliente
     await pool.query(
       'INSERT INTO clientes (cpf, nome, telefone, endereco, senha) VALUES ($1, $2, $3, $4, $5)',
       [cpf, nome, telefone, enderecoFinal, senhaHash]
@@ -99,6 +109,9 @@ router.post('/clientes', async (req, res) => {
   }
 });
 
+// -----------------------------
+// ROTA: Atualizar cliente
+// -----------------------------
 router.put('/clientes/:cpf', async (req, res) => {
   const { cpf } = req.params;
   const { nome, telefone, endereco, senha } = req.body;
@@ -110,6 +123,7 @@ router.put('/clientes/:cpf', async (req, res) => {
   const campos: string[] = [];
   const valores: any[] = [];
 
+  // Monta dinamicamente os campos que serão atualizados
   if (nome) {
     campos.push(`nome = $${valores.length + 1}`);
     valores.push(nome);
@@ -148,6 +162,9 @@ router.put('/clientes/:cpf', async (req, res) => {
   }
 });
 
+// -----------------------------
+// ROTA: Excluir cliente
+// -----------------------------
 router.delete('/clientes/:cpf', async (req, res) => {
   const { cpf } = req.params;
 
@@ -164,4 +181,4 @@ router.delete('/clientes/:cpf', async (req, res) => {
   }
 });
 
-export default router;
+export default router; // Exporta o roteador para ser usado no servidor principal

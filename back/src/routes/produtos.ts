@@ -1,18 +1,23 @@
 import express from 'express';
 import { pool } from '../data/db.js';
 
-const routerprod = express.Router();
+const routerprod = express.Router(); // Cria um roteador do Express para organizar as rotas de produtos
 
+// -----------------------------
 // ROTAS: Pizza
+// -----------------------------
 
+// Criar nova pizza
 routerprod.post('/pizzas', async (req, res) => {
   const { nome, tamanho, preco } = req.body;
 
+  // Validação dos campos obrigatórios
   if (!nome || !tamanho || preco === undefined || preco === null || isNaN(preco)) {
     return res.status(400).json({ error: 'Campos obrigatórios: nome, tamanho e preço.' });
   }
 
   try {
+    // Verifica se já existe pizza com mesmo nome e tamanho
     const existe = await pool.query(
       'SELECT * FROM pizzas WHERE nome = $1 AND tamanho = $2',
       [nome, tamanho]
@@ -22,6 +27,7 @@ routerprod.post('/pizzas', async (req, res) => {
       return res.status(400).json({ error: 'Essa pizza já existe com esse tamanho.' });
     }
 
+    // Insere nova pizza
     await pool.query(
       'INSERT INTO pizzas (nome, tamanho, preco) VALUES ($1, $2, $3)',
       [nome, tamanho, preco]
@@ -34,6 +40,7 @@ routerprod.post('/pizzas', async (req, res) => {
   }
 });
 
+// Atualizar pizza existente
 routerprod.put('/pizzas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -46,6 +53,7 @@ routerprod.put('/pizzas/:id', async (req, res) => {
   const campos: string[] = [];
   const valores: any[] = [];
 
+  // Monta dinamicamente os campos que serão atualizados
   if (nome) {
     campos.push(`nome = $${valores.length + 1}`);
     valores.push(nome);
@@ -77,6 +85,7 @@ routerprod.put('/pizzas/:id', async (req, res) => {
   }
 });
 
+// Excluir pizza
 routerprod.delete('/pizzas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -94,8 +103,11 @@ routerprod.delete('/pizzas/:id', async (req, res) => {
   }
 });
 
+// -----------------------------
 // ROTAS: Bebidas
+// -----------------------------
 
+// Criar nova bebida
 routerprod.post('/bebidas', async (req, res) => {
   const { nome, preco } = req.body;
 
@@ -104,19 +116,13 @@ routerprod.post('/bebidas', async (req, res) => {
   }
 
   try {
-    const existe = await pool.query(
-      'SELECT * FROM bebidas WHERE nome = $1',
-      [nome]
-    );
+    const existe = await pool.query('SELECT * FROM bebidas WHERE nome = $1', [nome]);
 
     if (existe.rows.length > 0) {
       return res.status(400).json({ error: 'Essa bebida já está cadastrada.' });
     }
 
-    await pool.query(
-      'INSERT INTO bebidas (nome, preco) VALUES ($1, $2)',
-      [nome, preco]
-    );
+    await pool.query('INSERT INTO bebidas (nome, preco) VALUES ($1, $2)', [nome, preco]);
 
     return res.status(201).json({ message: 'Bebida cadastrada com sucesso!' });
   } catch (err) {
@@ -125,6 +131,7 @@ routerprod.post('/bebidas', async (req, res) => {
   }
 });
 
+// Atualizar bebida
 routerprod.put('/bebidas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -163,6 +170,7 @@ routerprod.put('/bebidas/:id', async (req, res) => {
   }
 });
 
+// Excluir bebida
 routerprod.delete('/bebidas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -180,16 +188,21 @@ routerprod.delete('/bebidas/:id', async (req, res) => {
   }
 });
 
+// -----------------------------
 // ROTAS: Sobremesas
+// -----------------------------
 
+// Criar nova sobremesa
 routerprod.post('/sobremesas', async (req, res) => {
   const { nome, preco } = req.body;
 
+  // Validação dos campos obrigatórios
   if (!nome || preco === undefined || preco === null || isNaN(preco)) {
     return res.status(400).json({ error: 'Campos obrigatórios: nome e preço.' });
   }
 
   try {
+    // Verifica se já existe sobremesa com esse nome
     const existe = await pool.query(
       'SELECT * FROM sobremesas WHERE nome = $1',
       [nome]
@@ -199,6 +212,7 @@ routerprod.post('/sobremesas', async (req, res) => {
       return res.status(400).json({ error: 'Essa sobremesa já está cadastrada.' });
     }
 
+    // Insere nova sobremesa
     await pool.query(
       'INSERT INTO sobremesas (nome, preco) VALUES ($1, $2)',
       [nome, preco]
@@ -211,11 +225,13 @@ routerprod.post('/sobremesas', async (req, res) => {
   }
 });
 
+// Atualizar sobremesa existente
 routerprod.put('/sobremesas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
   const { nome, preco } = req.body;
 
+  // Validação do ID
   if (isNaN(idNum) || idNum <= 0) {
     return res.status(400).json({ error: 'ID inválido para atualização.' });
   }
@@ -223,6 +239,7 @@ routerprod.put('/sobremesas/:id', async (req, res) => {
   const campos: string[] = [];
   const valores: any[] = [];
 
+  // Monta dinamicamente os campos que serão atualizados
   if (nome) {
     campos.push(`nome = $${valores.length + 1}`);
     valores.push(nome);
@@ -249,10 +266,12 @@ routerprod.put('/sobremesas/:id', async (req, res) => {
   }
 });
 
+// Excluir sobremesa
 routerprod.delete('/sobremesas/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
 
+  // Validação do ID
   if (isNaN(idNum) || idNum <= 0) {
     return res.status(400).json({ error: 'ID inválido para exclusão.' });
   }
@@ -266,9 +285,11 @@ routerprod.delete('/sobremesas/:id', async (req, res) => {
   }
 });
 
-
+// -----------------------------
 // ROTAS: Adicionais
+// -----------------------------
 
+// Criar novo adicional
 routerprod.post('/adicionais', async (req, res) => {
   const { nome, preco } = req.body;
 
@@ -277,6 +298,7 @@ routerprod.post('/adicionais', async (req, res) => {
   }
 
   try {
+    // Verifica se já existe adicional com esse nome
     const existe = await pool.query(
       'SELECT * FROM adicionais WHERE nome = $1',
       [nome]
@@ -286,6 +308,7 @@ routerprod.post('/adicionais', async (req, res) => {
       return res.status(400).json({ error: 'Esse adicional já está cadastrado.' });
     }
 
+    // Insere novo adicional
     await pool.query(
       'INSERT INTO adicionais (nome, preco) VALUES ($1, $2)',
       [nome, preco]
@@ -298,6 +321,7 @@ routerprod.post('/adicionais', async (req, res) => {
   }
 });
 
+// Atualizar adicional existente
 routerprod.put('/adicionais/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -336,6 +360,7 @@ routerprod.put('/adicionais/:id', async (req, res) => {
   }
 });
 
+// Excluir adicional
 routerprod.delete('/adicionais/:id', async (req, res) => {
   const { id } = req.params;
   const idNum = parseInt(id);
@@ -353,4 +378,4 @@ routerprod.delete('/adicionais/:id', async (req, res) => {
   }
 });
 
-export default routerprod;
+export default routerprod; // Exporta o roteador para ser usado no servidor principal
