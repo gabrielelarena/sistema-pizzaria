@@ -13,12 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCadastro = document.getElementById("btnCadastro");
     function getFormData() {
         return {
-            cpf: document.getElementById("cpf").value,
-            nome: document.getElementById("nome").value,
-            telefone: document.getElementById("telefone").value,
-            endereco: document.getElementById("endereco").value
+            cpf: document.getElementById("cpf").value.trim(),
+            nome: document.getElementById("nome").value.trim(),
+            telefone: document.getElementById("telefone").value.trim(),
+            endereco: document.getElementById("endereco").value.trim(),
+            senha: document.getElementById("senha").value.trim()
         };
     }
+    // Cadastro normal
     btnCadastrar.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
         const dados = getFormData();
         const res = yield fetch("http://localhost:3000/clientes", {
@@ -29,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const msg = yield res.json();
         alert(msg.message || msg.error);
     }));
+    // Verificação + autocompletar
     btnCadastro.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
         const dados = getFormData();
         const res = yield fetch("http://localhost:3000/verificar", {
@@ -37,8 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify(dados)
         });
         const msg = yield res.json();
+        // Mostra mensagem de sucesso ou erro
         alert(msg.message || msg.error);
-        if (msg.clienteBanco) {
+        // Só autocompleta se CPF + senha forem válidos
+        if (msg.clienteBanco && !msg.error) {
             document.getElementById("nome").value = msg.clienteBanco.nome;
             document.getElementById("telefone").value = msg.clienteBanco.telefone;
             document.getElementById("endereco").value = msg.clienteBanco.endereco;

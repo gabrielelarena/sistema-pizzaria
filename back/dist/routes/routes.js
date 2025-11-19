@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import express from 'express';
+import bcrypt from 'bcrypt';
 import { pool } from '../data/db.js';
 const router = express.Router();
 // ROTA: Enviar pedido
@@ -63,9 +64,9 @@ router.post('/enviar-pedido', (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 // ROTA: Clientes
 router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { cpf, nome, telefone, endereco } = req.body;
-    if (!cpf || !nome || !telefone) {
-        return res.status(400).json({ error: 'CPF, nome e telefone são obrigatórios.' });
+    const { cpf, nome, telefone, endereco, senha } = req.body;
+    if (!cpf || !nome || !telefone || !senha) {
+        return res.status(400).json({ error: 'CPF, nome, telefone e senha são obrigatórios.' });
     }
     const enderecoFinal = (endereco === null || endereco === void 0 ? void 0 : endereco.trim()) || "Retirar no local";
     try {
@@ -73,7 +74,8 @@ router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, functio
         if (existe.rows.length > 0) {
             return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
         }
-        yield pool.query('INSERT INTO clientes (cpf, nome, telefone, endereco) VALUES ($1, $2, $3, $4)', [cpf, nome, telefone, enderecoFinal]);
+        const senhaHash = yield bcrypt.hash(senha, 10);
+        yield pool.query('INSERT INTO clientes (cpf, nome, telefone, endereco, senha) VALUES ($1, $2, $3, $4, $5)', [cpf, nome, telefone, enderecoFinal, senhaHash]);
         return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
     }
     catch (err) {
@@ -83,7 +85,7 @@ router.post('/clientes', (req, res) => __awaiter(void 0, void 0, void 0, functio
 }));
 router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cpf } = req.params;
-    const { nome, telefone, endereco } = req.body;
+    const { nome, telefone, endereco, senha } = req.body;
     if (!cpf) {
         return res.status(400).json({ error: 'CPF inválido para atualização.' });
     }
@@ -101,6 +103,11 @@ router.put('/clientes/:cpf', (req, res) => __awaiter(void 0, void 0, void 0, fun
         const enderecoFinal = (endereco === null || endereco === void 0 ? void 0 : endereco.trim()) || "Retirar no local";
         campos.push(`endereco = $${valores.length + 1}`);
         valores.push(enderecoFinal);
+    }
+    if (senha) {
+        const senhaHash = yield bcrypt.hash(senha, 10);
+        campos.push(`senha = $${valores.length + 1}`);
+        valores.push(senhaHash);
     }
     if (campos.length === 0) {
         return res.status(400).json({ error: 'Nenhum campo para atualizar foi enviado.' });

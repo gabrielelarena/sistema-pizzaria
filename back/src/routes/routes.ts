@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 import { pool } from '../data/db.js';
 import { Cliente, Pedido } from '../data/models.js';
 
@@ -70,27 +71,25 @@ router.post('/enviar-pedido', async (req, res) => {
 // ROTA: Clientes
 
 router.post('/clientes', async (req, res) => {
-  const { cpf, nome, telefone, endereco } = req.body;
+  const { cpf, nome, telefone, endereco, senha } = req.body;
 
-  if (!cpf || !nome || !telefone) {
-    return res.status(400).json({ error: 'CPF, nome e telefone são obrigatórios.' });
+  if (!cpf || !nome || !telefone || !senha) {
+    return res.status(400).json({ error: 'CPF, nome, telefone e senha são obrigatórios.' });
   }
 
   const enderecoFinal = endereco?.trim() || "Retirar no local";
 
   try {
-    const existe = await pool.query(
-      'SELECT * FROM clientes WHERE cpf = $1',
-      [cpf]
-    );
+    const existe = await pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
 
     if (existe.rows.length > 0) {
       return res.status(400).json({ error: 'Cliente já cadastrado com este CPF.' });
     }
 
+    const senhaHash = await bcrypt.hash(senha, 10);
     await pool.query(
-      'INSERT INTO clientes (cpf, nome, telefone, endereco) VALUES ($1, $2, $3, $4)',
-      [cpf, nome, telefone, enderecoFinal]
+      'INSERT INTO clientes (cpf, nome, telefone, endereco, senha) VALUES ($1, $2, $3, $4, $5)',
+      [cpf, nome, telefone, enderecoFinal, senhaHash]
     );
 
     return res.status(201).json({ message: 'Cliente cadastrado com sucesso!' });
@@ -102,7 +101,7 @@ router.post('/clientes', async (req, res) => {
 
 router.put('/clientes/:cpf', async (req, res) => {
   const { cpf } = req.params;
-  const { nome, telefone, endereco } = req.body;
+  const { nome, telefone, endereco, senha } = req.body;
 
   if (!cpf) {
     return res.status(400).json({ error: 'CPF inválido para atualização.' });
@@ -125,6 +124,12 @@ router.put('/clientes/:cpf', async (req, res) => {
     const enderecoFinal = endereco?.trim() || "Retirar no local";
     campos.push(`endereco = $${valores.length + 1}`);
     valores.push(enderecoFinal);
+  }
+
+  if (senha) {
+    const senhaHash = await bcrypt.hash(senha, 10);
+    campos.push(`senha = $${valores.length + 1}`);
+    valores.push(senhaHash);
   }
 
   if (campos.length === 0) {

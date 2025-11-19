@@ -15,6 +15,7 @@ const cpfClienteInput = document.getElementById("CpfCliente") as HTMLInputElemen
 const nomeClienteInput = document.getElementById("NomeCliente") as HTMLInputElement;
 const telefoneClienteInput = document.getElementById("TelefoneCliente") as HTMLInputElement;
 const enderecoClienteInput = document.getElementById("EnderecoCliente") as HTMLInputElement;
+const senhaClienteInput = document.getElementById("SenhaCliente") as HTMLInputElement;
 const produtoEsc = document.getElementById("produtoesc") as HTMLSelectElement;
 const NomeProduto = document.getElementById("NomeProduto") as HTMLInputElement;
 const DataInicio = document.getElementById("DataInicio") as HTMLInputElement;
@@ -66,7 +67,7 @@ function limparCampos() {
   nomeClienteInput.value = "";
   telefoneClienteInput.value = "";
   enderecoClienteInput.value = "";
-
+  senhaClienteInput.value = "";
 }
 
 // Cadastrar pizza
@@ -416,18 +417,18 @@ btnCadastrarC.addEventListener("click", () => {
   const nome = nomeClienteInput.value.trim();
   const telefone = telefoneClienteInput.value.trim();
   let endereco = enderecoClienteInput.value.trim();
+  const senha = senhaClienteInput.value.trim(); // novo campo
 
-  if (!cpf || !nome || !telefone) {
-    alert("Preencha CPF, nome e telefone para cadastrar o cliente.");
+  if (!cpf || !nome || !telefone || !senha) {
+    alert("Preencha CPF, nome, telefone e senha para cadastrar o cliente.");
     return;
   }
 
-  // Aplica valor padrão se o campo estiver vazio
   if (!endereco) {
     endereco = "Retirar no local";
   }
 
-  const cliente = { cpf, nome, telefone, endereco };
+  const cliente = { cpf, nome, telefone, endereco, senha };
 
   fetch("http://localhost:3000/clientes", {
     method: "POST",
@@ -456,11 +457,13 @@ btnAtualizarC.addEventListener("click", () => {
   const nome = nomeClienteInput.value.trim();
   const telefone = telefoneClienteInput.value.trim();
   const endereco = enderecoClienteInput.value.trim();
+  const senha = senhaClienteInput.value.trim(); // novo campo
 
   const cliente: any = {};
   if (nome) cliente.nome = nome;
   if (telefone) cliente.telefone = telefone;
   if (endereco) cliente.endereco = endereco;
+  if (senha) cliente.senha = senha;
 
   if (Object.keys(cliente).length === 0) {
     alert("Preencha ao menos um campo para atualizar.");
@@ -504,3 +507,4 @@ btnExcluirC.addEventListener("click", () => {
       alert("Erro ao excluir cliente.");
     });
 });
+

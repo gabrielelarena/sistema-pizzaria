@@ -1,13 +1,14 @@
 import express from 'express';
 import { pool } from '../data/db.js';
+import bcrypt from 'bcrypt';
 
 const routerverif = express.Router();
 
 routerverif.post('/verificar', async (req, res) => {
-  const { cpf, nome, telefone, endereco } = req.body;
+  const { cpf, senha } = req.body;
 
-  if (!cpf) {
-    return res.status(400).json({ error: 'CPF é obrigatório.' });
+  if (!cpf || !senha) {
+    return res.status(400).json({ error: 'CPF e senha são obrigatórios.' });
   }
 
   try {
@@ -18,25 +19,50 @@ routerverif.post('/verificar', async (req, res) => {
     }
 
     const clienteBanco = result.rows[0];
-    const enderecoFinal = endereco?.trim() || "Retirar no local";
 
-    if (
-      clienteBanco.nome === nome &&
-      clienteBanco.telefone === telefone &&
-      clienteBanco.endereco === enderecoFinal
-    ) {
-      return res.json({ message: 'Ok, cadastro existente!' });
-    } else {
-      return res.json({
-        message: 'Cadastro existe, mas algumas informações não batem.',
-        clienteBanco
-      });
+    // 🔑 compara senha digitada com hash do banco
+    const senhaValida = await bcrypt.compare(senha, clienteBanco.senha);
+    if (!senhaValida) {
+      return res.status(401).json({ error: 'Senha incorreta. Verifique CPF e senha.' });
     }
+
+    return res.json({
+      message: 'Ok, cadastro existente!',
+      clienteBanco: {
+        nome: clienteBanco.nome,
+        telefone: clienteBanco.telefone,
+        endereco: clienteBanco.endereco
+      }
+    });
   } catch (err) {
     console.error('Erro ao verificar cadastro:', err);
     return res.status(500).json({ error: 'Erro ao verificar cadastro.' });
   }
 });
+
+// GET /verificar-cliente/:cpf
+routerverif.get('/verificar-cliente/:cpf', async (req, res) => {
+  const { cpf } = req.params;
+
+  try {
+    const clienteResult = await pool.query('SELECT * FROM clientes WHERE cpf = $1', [cpf]);
+
+    if (clienteResult.rows.length === 0) {
+      // não existe cliente → cupom válido
+      return res.json({ existe: false, temPedido: false });
+    }
+
+    const pedidosResult = await pool.query('SELECT * FROM pedidos WHERE cpf = $1', [cpf]);
+
+    const temPedido = pedidosResult.rows.length > 0;
+
+    return res.json({ existe: true, temPedido });
+  } catch (err) {
+    console.error('Erro ao verificar cliente/pedido:', err);
+    return res.status(500).json({ error: 'Erro ao verificar cliente/pedido.' });
+  }
+});
+
 
 routerverif.get('/usar-cadastro/:cpf', async (req, res) => {
   const { cpf } = req.params;
@@ -52,7 +78,10 @@ routerverif.get('/usar-cadastro/:cpf', async (req, res) => {
       return res.status(404).json({ error: 'Cliente não encontrado.' });
     }
 
-    return res.json({ cliente: result.rows[0] });
+    // ⚠️ nunca retorne a senha para o cliente
+    const { senha, ...clienteSemSenha } = result.rows[0];
+
+    return res.json({ cliente: clienteSemSenha });
   } catch (err) {
     console.error('Erro ao buscar cadastro:', err);
     return res.status(500).json({ error: 'Erro ao buscar cadastro.' });

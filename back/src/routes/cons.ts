@@ -170,7 +170,6 @@ routercons.get("/verificar-cliente/:cpf", async (req, res) => {
 });
 
 // historico de produtos vendidos
-// rota mais-vendido.ts
 routercons.get("/mais-vendido", async (req, res) => {
   const tipo = String(req.query.tipo);
   const dataInicio = String(req.query.dataInicio);

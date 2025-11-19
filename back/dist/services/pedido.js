@@ -282,13 +282,13 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             }
             const data = yield res.json();
             console.log("Resultado verificação:", data);
-            if (!data.existe) {
+            if (!data.temPedido) {
                 freteGratis = true;
                 alert("Cupom válido: FRETE GRÁTIS!");
                 valido = true;
             }
             else {
-                alert("Cupom inválido: já existe cliente com este CPF.");
+                alert("Cupom inválido: já existe pedido com este CPF.");
             }
             break;
         }

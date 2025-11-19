@@ -4,6 +4,7 @@ export interface Cliente {
   nome: string;
   endereco: string;
   telefone: string;
+  senha: string;
 }
 
 export interface Pedido {

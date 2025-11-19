@@ -33,6 +33,7 @@ export interface Cliente {
   nome: string;
   telefone: string;
   endereco: string;
+  senha?: string;
 }
 
 export interface Pedido {
@@ -336,7 +337,6 @@ btnValidarCupom.addEventListener("click", async () => {
 
   switch (cupom) {
     case "PRIMEIRACOMPRA": {
-
       console.log("Verificando cliente com CPF:", ultimo.cpf);
 
       const res = await fetch(`http://localhost:3000/verificar-cliente/${encodeURIComponent(ultimo.cpf)}`, {
@@ -353,16 +353,15 @@ btnValidarCupom.addEventListener("click", async () => {
       const data = await res.json();
       console.log("Resultado verificação:", data);
 
-      if (!data.existe) {
+      if (!data.temPedido) {
         freteGratis = true;
         alert("Cupom válido: FRETE GRÁTIS!");
         valido = true;
       } else {
-        alert("Cupom inválido: já existe cliente com este CPF.");
+        alert("Cupom inválido: já existe pedido com este CPF.");
       }
       break;
     }
-
     case "CONTO20":
       // soma todas as pizzas de todos os pedidos
       const totalPizzas = pedidos.reduce((acc, p) => acc + p.quantidade_pizza, 0);

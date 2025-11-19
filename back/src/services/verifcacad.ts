@@ -1,8 +1,10 @@
+
 type Cliente = {
   cpf: string;
   nome: string;
   telefone: string;
   endereco?: string;
+  senha: string;
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,13 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getFormData(): Cliente {
     return {
-      cpf: (document.getElementById("cpf") as HTMLInputElement).value,
-      nome: (document.getElementById("nome") as HTMLInputElement).value,
-      telefone: (document.getElementById("telefone") as HTMLInputElement).value,
-      endereco: (document.getElementById("endereco") as HTMLInputElement).value
+      cpf: (document.getElementById("cpf") as HTMLInputElement).value.trim(),
+      nome: (document.getElementById("nome") as HTMLInputElement).value.trim(),
+      telefone: (document.getElementById("telefone") as HTMLInputElement).value.trim(),
+      endereco: (document.getElementById("endereco") as HTMLInputElement).value.trim(),
+      senha: (document.getElementById("senha") as HTMLInputElement).value.trim()
     };
   }
 
+  // Cadastro normal
   btnCadastrar.addEventListener("click", async () => {
     const dados = getFormData();
     const res = await fetch("http://localhost:3000/clientes", {
@@ -29,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     alert(msg.message || msg.error);
   });
 
+  // Verificação + autocompletar
   btnCadastro.addEventListener("click", async () => {
     const dados = getFormData();
     const res = await fetch("http://localhost:3000/verificar", {
@@ -37,9 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify(dados)
     });
     const msg = await res.json();
+
+    // Mostra mensagem de sucesso ou erro
     alert(msg.message || msg.error);
 
-    if (msg.clienteBanco) {
+    // Só autocompleta se CPF + senha forem válidos
+    if (msg.clienteBanco && !msg.error) {
       (document.getElementById("nome") as HTMLInputElement).value = msg.clienteBanco.nome;
       (document.getElementById("telefone") as HTMLInputElement).value = msg.clienteBanco.telefone;
       (document.getElementById("endereco") as HTMLInputElement).value = msg.clienteBanco.endereco;

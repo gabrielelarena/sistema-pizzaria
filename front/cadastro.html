@@ -27,41 +27,51 @@
                     <a href="index.html"><button type="button" class="btn btn-outline-light me-2">Início</button></a>
                     <a href="admin-senha.html"><button type="button"
                             class="btn btn-outline-light me-2">Administrador</button></a>
-                    <a href="historico.html"><button type="button" class="btn btn-outline-light me-2">Meu
-                            Histórico</button></a>
+                    <a href="historico.html"><button type="button" class="btn btn-outline-light me-2">Meus
+                            Dados</button></a>
                 </div>
             </div>
         </div>
     </header>
-    
+
     <h2 class="text-center pt-5 p-3">Detalhe seu pedido!</h2>
-    <div class="input-group m-auto p-3">
+    <form class="m-auto text-center">
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">CPF</span>
-            <input id="cpf" type="text" aria-label="CPF" class="form-control" placeholder="Sem pontos e traços">
+            <input id="cpf" type="text" aria-label="CPF" class="form-control" placeholder="Sem pontos e traços"
+                autocomplete="username">
         </div>
+
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light">Nome</span>
             <input id="nome" type="text" aria-label="First name" class="form-control"
-                placeholder="Apenas o primeiro nome">
+                placeholder="Apenas o primeiro nome" autocomplete="name">
         </div>
+
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light" id="inputGroup-sizing-sm">Telefone</span>
-            <input id="telefone" type="tel" class="form-control" aria-label="Sizing example input"
-                aria-describedby="inputGroup-sizing-sm" placeholder="Sem espaços, traços ou parênteses">
+            <input id="telefone" type="tel" class="form-control" aria-label="Telefone"
+                aria-describedby="inputGroup-sizing-sm" placeholder="Sem espaços, traços ou parênteses"
+                autocomplete="tel">
         </div>
+
         <div class="input-group m-auto p-3">
             <span class="input-group-text bg-dark text-light" id="basic-addon1">Endereço</span>
-            <input id="endereco" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1"
-                placeholder="Ex: Rua Boa vista, 17 - Bairro São João - Jundiaí">
+            <input id="endereco" type="text" class="form-control" aria-label="Endereço" aria-describedby="basic-addon1"
+                placeholder="Ex: Rua Boa vista, 17 - Bairro São João - Jundiaí" autocomplete="street-address">
         </div>
-    </div>
 
-    <div class="d-flex m-auto w-25">
+        <div class="input-group m-auto p-3">
+            <span class="input-group-text bg-dark text-light" id="basic-addon1">Senha</span>
+            <input id="senha" type="password" class="form-control" aria-label="Senha" aria-describedby="basic-addon1"
+                autocomplete="current-password">
+        </div>
+
+    <div class="d-flex m-auto w-50">
         <button type="button" class="btn btn-dark m-auto d-block" id="btnCadastro">Já tenho cadastro!</button>
         <button type="button" class="btn btn-dark m-auto d-block" id="btnCadastrar">Não tenho cadastro!</button>
     </div>
-
+    </form>
 
     <form id="pedido-form" class="m-auto p-3">
         <div class="input-group m-auto p-3">

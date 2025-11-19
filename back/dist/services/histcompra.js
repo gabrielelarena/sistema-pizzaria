@@ -7,7 +7,56 @@ const dataFimInput = document.getElementById("dataFimCliente");
 const resultadoDiv = document.getElementById("resultadoCompras");
 const btnLimparTudo = document.getElementById("btnLimparTudo");
 const limparContainer = document.getElementById("limparContainer");
+const cpfCliente = document.getElementById("CpfCliente");
+const nomeCliente = document.getElementById("NomeCliente");
+const telefoneClient = document.getElementById("TelefoneCliente");
+const enderecoCliente = document.getElementById("EnderecoCliente");
+const senhaCliente = document.getElementById("SenhaCliente");
+const btnAtualizar = document.getElementById("alterac");
 let historicoAtual = [];
+btnAtualizar.addEventListener("click", () => {
+    const cpf = cpfCliente.value.trim();
+    if (!cpf) {
+        alert("Informe o CPF do cliente para atualizar.");
+        return;
+    }
+    const nome = nomeCliente.value.trim();
+    const telefone = telefoneClient.value.trim();
+    const endereco = enderecoCliente.value.trim();
+    const senha = senhaCliente.value.trim();
+    const cliente = {};
+    if (nome)
+        cliente.nome = nome;
+    if (telefone)
+        cliente.telefone = telefone;
+    if (endereco)
+        cliente.endereco = endereco;
+    if (senha)
+        cliente.senha = senha;
+    if (Object.keys(cliente).length === 0) {
+        alert("Preencha ao menos um campo para atualizar.");
+        return;
+    }
+    fetch(`http://localhost:3000/clientes/${cpf}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente),
+    })
+        .then(res => res.json())
+        .then(data => {
+        alert(data.message || data.error);
+        // opcional: limpar campos
+        cpfClienteInput.value = "";
+        nomeClienteInput.value = "";
+        telefoneClienteInput.value = "";
+        enderecoClienteInput.value = "";
+        senhaClienteInput.value = "";
+    })
+        .catch(err => {
+        console.error("Erro ao atualizar cliente:", err);
+        alert("Erro ao atualizar cliente.");
+    });
+});
 btnBuscarCompras.addEventListener("click", () => {
     resultadoDiv.innerHTML = "";
     historicoAtual = []; // limpa antes de buscar
@@ -82,6 +131,11 @@ btnLimparTudo.addEventListener("click", () => {
     cpfInput.value = "";
     dataInicioInput.value = "";
     dataFimInput.value = "";
+    cpfCliente.value = "";
+    nomeCliente.value = "";
+    enderecoCliente.value = "";
+    telefoneClient.value = "";
+    senhaCliente.value = "";
     // Limpa resultados
     resultadoDiv.innerHTML = "";
     // Limpa campos de produto

@@ -16,6 +16,7 @@ const cpfClienteInput = document.getElementById("CpfCliente");
 const nomeClienteInput = document.getElementById("NomeCliente");
 const telefoneClienteInput = document.getElementById("TelefoneCliente");
 const enderecoClienteInput = document.getElementById("EnderecoCliente");
+const senhaClienteInput = document.getElementById("SenhaCliente");
 const produtoEsc = document.getElementById("produtoesc");
 const NomeProduto = document.getElementById("NomeProduto");
 const DataInicio = document.getElementById("DataInicio");
@@ -64,6 +65,7 @@ function limparCampos() {
     nomeClienteInput.value = "";
     telefoneClienteInput.value = "";
     enderecoClienteInput.value = "";
+    senhaClienteInput.value = "";
 }
 // Cadastrar pizza
 btnCadastrarP.addEventListener("click", () => {
@@ -381,15 +383,15 @@ btnCadastrarC.addEventListener("click", () => {
     const nome = nomeClienteInput.value.trim();
     const telefone = telefoneClienteInput.value.trim();
     let endereco = enderecoClienteInput.value.trim();
-    if (!cpf || !nome || !telefone) {
-        alert("Preencha CPF, nome e telefone para cadastrar o cliente.");
+    const senha = senhaClienteInput.value.trim(); // novo campo
+    if (!cpf || !nome || !telefone || !senha) {
+        alert("Preencha CPF, nome, telefone e senha para cadastrar o cliente.");
         return;
     }
-    // Aplica valor padrão se o campo estiver vazio
     if (!endereco) {
         endereco = "Retirar no local";
     }
-    const cliente = { cpf, nome, telefone, endereco };
+    const cliente = { cpf, nome, telefone, endereco, senha };
     fetch("http://localhost:3000/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -415,6 +417,7 @@ btnAtualizarC.addEventListener("click", () => {
     const nome = nomeClienteInput.value.trim();
     const telefone = telefoneClienteInput.value.trim();
     const endereco = enderecoClienteInput.value.trim();
+    const senha = senhaClienteInput.value.trim(); // novo campo
     const cliente = {};
     if (nome)
         cliente.nome = nome;
@@ -422,6 +425,8 @@ btnAtualizarC.addEventListener("click", () => {
         cliente.telefone = telefone;
     if (endereco)
         cliente.endereco = endereco;
+    if (senha)
+        cliente.senha = senha;
     if (Object.keys(cliente).length === 0) {
         alert("Preencha ao menos um campo para atualizar.");
         return;

@@ -144,7 +144,6 @@ routercons.get("/verificar-cliente/:cpf", (req, res) => __awaiter(void 0, void 0
     }
 }));
 // historico de produtos vendidos
-// rota mais-vendido.ts
 routercons.get("/mais-vendido", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const tipo = String(req.query.tipo);
     const dataInicio = String(req.query.dataInicio);
