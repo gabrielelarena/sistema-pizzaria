@@ -12,4 +12,3 @@ tem conta? os dados não batem? se for a senha (peça para ele digitar a senha c
 <br>
 irei tentar exportar o docker e mando via drive para futuros testes.
 <br>
-podem escolher suas partes para o video do yt!
