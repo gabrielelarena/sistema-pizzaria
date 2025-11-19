@@ -13,18 +13,24 @@
 </head>
 
 <body>
+  <!-- Cabeçalho da página -->
   <header class="p-3" id="inicio" style="background-color: #61120e;">
     <div id="inicio" class=" fs-5">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+        <!-- Logo da pizzaria -->
         <a href="index.html" class="d-flex align-items-center mb-2 mb-lg-0 text-light text-decoration-none">
           <img class="px-2 h-25" src="img/pizza.png" style="width:80px;">
         </a>
+
+        <!-- Nome da pizzaria -->
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><a href="index.html" class="nav-link px-2 text-white">Pizzaria Parma</a></li>
         </ul>
+
+        <!-- Botões de navegação -->
         <div class="text-end">
-          <a href="cadastro.html"><button type="button" class="btn btn-outline-light me-2">Fazer
-              Pedido</button></a>
+          <a href="cadastro.html"><button type="button" class="btn btn-outline-light me-2">Fazer Pedido</button></a>
           <a href="admin-senha.html"><button type="button" class="btn btn-outline-light me-2">Administrador</button></a>
           <a href="index.html"><button type="button" class="btn btn-outline-light me-2">Início</button></a>
         </div>
@@ -32,8 +38,11 @@
     </div>
   </header>
 
+  <!-- Formulário para alterar cadastro do cliente -->
   <div class="input-group m-auto p-3 quadro w-50 mt-5">
     <h3 class="text-center m-auto p-2" id="cliente">Altere seu Cadastro</h3>
+
+    <!-- Campos de edição do cadastro -->
     <div class="input-group m-auto p-3">
       <span class="input-group-text bg-dark text-light">CPF</span>
       <input type="text" class="form-control" id="CpfCliente">
@@ -55,17 +64,22 @@
       <input type="password" class="form-control" id="SenhaCliente">
     </div>
 
+    <!-- Botão para alterar cadastro -->
     <div class="d-flex m-auto w-50 pt-4">
       <button type="button" class="btn btn-dark m-auto d-block" id="alterac">Alterar</button>
     </div>
   </div>
+
+  <!-- Botão para limpar todos os dados -->
   <div class="justify-content-center mt-3 m-auto d-block" id="limparContainer">
     <button class="btn btn-danger d-block m-auto" id="btnLimparTudo">Limpar tudo</button>
   </div>
 
-
+  <!-- Histórico de compras do cliente -->
   <div class="input-group m-auto p-3 quadro w-50 mt-5">
     <h3 class="text-center p-2 m-auto">Seu Histórico de Compras</h3>
+
+    <!-- Campos para buscar histórico -->
     <div class="input-group m-auto p-3">
       <span class="input-group-text bg-dark text-light">CPF:</span>
       <input type="text" id="cpfClienteH" class="form-control">
@@ -80,15 +94,20 @@
     </div>
   </div>
 
+  <!-- Botão para buscar compras -->
   <div class="d-flex m-auto w-25 pt-4">
     <button type="button" class="btn btn-dark m-auto d-block" id="btnBuscarCompras">Procurar</button>
   </div>
 
+  <!-- Área para mostrar resultado das compras -->
   <div id="resultadoCompras" class="mt-4 m-auto text-center w-50"></div>
 
+  <!-- Botão para exportar relatório -->
   <div class="d-flex justify-content-center mt-3">
     <button class="btn btn-outline-dark" id="btnExportarTxt">Exportar como .txt</button>
   </div>
+
+  <!-- Botão para limpar relatório -->
   <div class="justify-content-center mt-3" id="limparContainer" style="display: none;">
     <button class="btn btn-danger" id="btnLimparTudo">Limpar tudo</button>
   </div>
