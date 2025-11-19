@@ -43,13 +43,16 @@ const btnExcluirC = document.getElementById("excluicliente") as HTMLButtonElemen
 
 // Utilitário para converter preço corretamente
 function parsePreco(valor: string): number {
+  // Troca vírgula por ponto para evitar erro de parse
   const normalizado = valor.replace(',', '.');
   const preco = parseFloat(normalizado);
+  // Se não for número válido, retorna 0
   return isNaN(preco) ? 0 : preco;
 }
 
 // Limpar campos do formulário
 function limparCampos() {
+  // Zera todos os inputs relacionados a pizza, bebida, sobremesa, adicional e cliente
   nomeInput.value = "";
   precoInput.value = "";
   tamanhoSelect.selectedIndex = 0;
@@ -70,13 +73,19 @@ function limparCampos() {
   senhaClienteInput.value = "";
 }
 
+// -----------------------------
 // Cadastrar pizza
+// -----------------------------
 btnCadastrarP.addEventListener("click", () => {
+  // Captura valores do formulário
   const nome = nomeInput.value.trim();
   const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex]?.text ?? "";
   const preco = parsePreco(precoInput.value);
+
+  // Monta objeto pizza
   const pizza = { nome, tamanho, preco };
 
+  // Faz requisição POST para a API
   fetch("http://localhost:3000/pizzas", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -84,8 +93,9 @@ btnCadastrarP.addEventListener("click", () => {
   })
     .then(res => res.json())
     .then(data => {
+      // Mostra mensagem de sucesso ou erro
       alert(data.message || data.error);
-      limparCampos();
+      limparCampos(); // Limpa formulário
     })
     .catch(err => {
       console.error("Erro ao cadastrar:", err);
@@ -93,7 +103,9 @@ btnCadastrarP.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Atualizar pizza
+// -----------------------------
 btnAtualizarP.addEventListener("click", () => {
   const id = parseInt(idInput.value);
   if (isNaN(id) || id <= 0) {
@@ -101,10 +113,12 @@ btnAtualizarP.addEventListener("click", () => {
     return;
   }
 
+  // Captura valores
   const nome = nomeInput.value.trim();
   const tamanho = tamanhoSelect.options[tamanhoSelect.selectedIndex]?.text ?? "";
   const preco = parsePreco(precoInput.value);
 
+  // Monta objeto pizza dinamicamente (apenas campos preenchidos)
   const pizza: any = {};
   if (nome) pizza.nome = nome;
   if (tamanho && tamanho !== "Selecione um tamanho:") pizza.tamanho = tamanho;
@@ -115,6 +129,7 @@ btnAtualizarP.addEventListener("click", () => {
     return;
   }
 
+  // Faz requisição PUT para atualizar pizza
   fetch(`http://localhost:3000/pizzas/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -131,7 +146,9 @@ btnAtualizarP.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Excluir pizza
+// -----------------------------
 btnExcluirP.addEventListener("click", () => {
   const id = parseInt(idInput.value);
   if (isNaN(id) || id <= 0) {
@@ -139,6 +156,7 @@ btnExcluirP.addEventListener("click", () => {
     return;
   }
 
+  // Faz requisição DELETE para excluir pizza
   fetch(`http://localhost:3000/pizzas/${id}`, {
     method: "DELETE",
   })
@@ -153,18 +171,22 @@ btnExcluirP.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Cadastrar bebida
+// -----------------------------
 btnCadastrarB.addEventListener("click", () => {
-  const nome = nomeBebidaInput.value.trim();
-  const preco = parsePreco(precoBebidaInput.value);
+  const nome = nomeBebidaInput.value.trim(); // pega o nome da bebida
+  const preco = parsePreco(precoBebidaInput.value); // converte preço para número
 
+  // Validação
   if (!nome || preco <= 0) {
     alert("Preencha o nome e um preço válido.");
     return;
   }
 
-  const bebida = { nome, preco };
+  const bebida = { nome, preco }; // objeto bebida
 
+  // Requisição POST para cadastrar bebida
   fetch("http://localhost:3000/bebidas", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -172,8 +194,8 @@ btnCadastrarB.addEventListener("click", () => {
   })
     .then(res => res.json())
     .then(data => {
-      alert(data.message || data.error);
-      limparCampos();
+      alert(data.message || data.error); // mostra mensagem da API
+      limparCampos(); // limpa formulário
     })
     .catch(err => {
       console.error("Erro ao cadastrar bebida:", err);
@@ -181,9 +203,11 @@ btnCadastrarB.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Atualizar bebida
+// -----------------------------
 btnAtualizarB.addEventListener("click", () => {
-  const id = parseInt(idBebidaInput.value);
+  const id = parseInt(idBebidaInput.value); // pega ID da bebida
   if (isNaN(id) || id <= 0) {
     alert("Informe um ID válido para atualizar.");
     return;
@@ -192,6 +216,7 @@ btnAtualizarB.addEventListener("click", () => {
   const nome = nomeBebidaInput.value.trim();
   const preco = parsePreco(precoBebidaInput.value);
 
+  // Monta objeto dinamicamente
   const bebida: any = {};
   if (nome) bebida.nome = nome;
   if (preco > 0) bebida.preco = preco;
@@ -201,6 +226,7 @@ btnAtualizarB.addEventListener("click", () => {
     return;
   }
 
+  // Requisição PUT para atualizar bebida
   fetch(`http://localhost:3000/bebidas/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -217,14 +243,17 @@ btnAtualizarB.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Excluir bebida
+// -----------------------------
 btnExcluirB.addEventListener("click", () => {
-  const id = parseInt(idBebidaInput.value);
+  const id = parseInt(idBebidaInput.value); // pega ID
   if (isNaN(id) || id <= 0) {
     alert("Informe um ID válido para excluir.");
     return;
   }
 
+  // Requisição DELETE para excluir bebida
   fetch(`http://localhost:3000/bebidas/${id}`, {
     method: "DELETE",
   })
@@ -239,7 +268,9 @@ btnExcluirB.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Cadastrar sobremesa
+// -----------------------------
 btnCadastrarS.addEventListener("click", () => {
   const nome = nomeSobremesaInput.value.trim();
   const preco = parsePreco(precoSobremesaInput.value);
@@ -251,6 +282,7 @@ btnCadastrarS.addEventListener("click", () => {
 
   const sobremesa = { nome, preco };
 
+  // Requisição POST para cadastrar sobremesa
   fetch("http://localhost:3000/sobremesas", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -267,7 +299,9 @@ btnCadastrarS.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Atualizar sobremesa
+// -----------------------------
 btnAtualizarS.addEventListener("click", () => {
   const id = parseInt(idSobremesaInput.value);
   if (isNaN(id) || id <= 0) {
@@ -287,6 +321,7 @@ btnAtualizarS.addEventListener("click", () => {
     return;
   }
 
+  // Requisição PUT para atualizar sobremesa
   fetch(`http://localhost:3000/sobremesas/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -303,7 +338,9 @@ btnAtualizarS.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Excluir sobremesa
+// -----------------------------
 btnExcluirS.addEventListener("click", () => {
   const id = parseInt(idSobremesaInput.value);
   if (isNaN(id) || id <= 0) {
@@ -311,6 +348,7 @@ btnExcluirS.addEventListener("click", () => {
     return;
   }
 
+  // Requisição DELETE para excluir sobremesa
   fetch(`http://localhost:3000/sobremesas/${id}`, {
     method: "DELETE",
   })
@@ -325,11 +363,14 @@ btnExcluirS.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Cadastrar adicional
+// -----------------------------
 btnCadastrarA.addEventListener("click", () => {
-  const nome = nomeAdicionalInput.value.trim();
-  const preco = parsePreco(precoAdicionalInput.value);
+  const nome = nomeAdicionalInput.value.trim(); // pega nome do adicional
+  const preco = parsePreco(precoAdicionalInput.value); // converte preço para número
 
+  // Validação
   if (!nome || preco <= 0) {
     alert("Preencha o nome e um preço válido.");
     return;
@@ -337,6 +378,7 @@ btnCadastrarA.addEventListener("click", () => {
 
   const adicional = { nome, preco };
 
+  // Requisição POST para cadastrar adicional
   fetch("http://localhost:3000/adicionais", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -344,8 +386,8 @@ btnCadastrarA.addEventListener("click", () => {
   })
     .then(res => res.json())
     .then(data => {
-      alert(data.message || data.error);
-      limparCampos();
+      alert(data.message || data.error); // mostra resposta da API
+      limparCampos(); // limpa formulário
     })
     .catch(err => {
       console.error("Erro ao cadastrar adicional:", err);
@@ -353,9 +395,11 @@ btnCadastrarA.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Atualizar adicional
+// -----------------------------
 btnAtualizarA.addEventListener("click", () => {
-  const id = parseInt(idAdicionalInput.value);
+  const id = parseInt(idAdicionalInput.value); // pega ID do adicional
   if (isNaN(id) || id <= 0) {
     alert("Informe um ID válido para atualizar.");
     return;
@@ -364,6 +408,7 @@ btnAtualizarA.addEventListener("click", () => {
   const nome = nomeAdicionalInput.value.trim();
   const preco = parsePreco(precoAdicionalInput.value);
 
+  // Monta objeto dinamicamente
   const adicional: any = {};
   if (nome) adicional.nome = nome;
   if (preco > 0) adicional.preco = preco;
@@ -373,6 +418,7 @@ btnAtualizarA.addEventListener("click", () => {
     return;
   }
 
+  // Requisição PUT para atualizar adicional
   fetch(`http://localhost:3000/adicionais/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -389,7 +435,9 @@ btnAtualizarA.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Excluir adicional
+// -----------------------------
 btnExcluirA.addEventListener("click", () => {
   const id = parseInt(idAdicionalInput.value);
   if (isNaN(id) || id <= 0) {
@@ -397,6 +445,7 @@ btnExcluirA.addEventListener("click", () => {
     return;
   }
 
+  // Requisição DELETE para excluir adicional
   fetch(`http://localhost:3000/adicionais/${id}`, {
     method: "DELETE",
   })
@@ -411,25 +460,29 @@ btnExcluirA.addEventListener("click", () => {
     });
 });
 
-// Cadastrar Cliente
+// -----------------------------
+// Cadastrar cliente
+// -----------------------------
 btnCadastrarC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   const nome = nomeClienteInput.value.trim();
   const telefone = telefoneClienteInput.value.trim();
   let endereco = enderecoClienteInput.value.trim();
-  const senha = senhaClienteInput.value.trim(); // novo campo
+  const senha = senhaClienteInput.value.trim(); // senha obrigatória
 
+  // Validação
   if (!cpf || !nome || !telefone || !senha) {
     alert("Preencha CPF, nome, telefone e senha para cadastrar o cliente.");
     return;
   }
 
   if (!endereco) {
-    endereco = "Retirar no local";
+    endereco = "Retirar no local"; // valor padrão
   }
 
   const cliente = { cpf, nome, telefone, endereco, senha };
 
+  // Requisição POST para cadastrar cliente
   fetch("http://localhost:3000/clientes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -446,7 +499,9 @@ btnCadastrarC.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Atualizar cliente
+// -----------------------------
 btnAtualizarC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   if (!cpf) {
@@ -457,8 +512,9 @@ btnAtualizarC.addEventListener("click", () => {
   const nome = nomeClienteInput.value.trim();
   const telefone = telefoneClienteInput.value.trim();
   const endereco = enderecoClienteInput.value.trim();
-  const senha = senhaClienteInput.value.trim(); // novo campo
+  const senha = senhaClienteInput.value.trim();
 
+  // Monta objeto dinamicamente
   const cliente: any = {};
   if (nome) cliente.nome = nome;
   if (telefone) cliente.telefone = telefone;
@@ -470,6 +526,7 @@ btnAtualizarC.addEventListener("click", () => {
     return;
   }
 
+  // Requisição PUT para atualizar cliente
   fetch(`http://localhost:3000/clientes/${cpf}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -486,7 +543,9 @@ btnAtualizarC.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
 // Excluir cliente
+// -----------------------------
 btnExcluirC.addEventListener("click", () => {
   const cpf = cpfClienteInput.value.trim();
   if (!cpf) {
@@ -494,6 +553,7 @@ btnExcluirC.addEventListener("click", () => {
     return;
   }
 
+  // Requisição DELETE para excluir cliente
   fetch(`http://localhost:3000/clientes/${cpf}`, {
     method: "DELETE",
   })
@@ -507,4 +567,3 @@ btnExcluirC.addEventListener("click", () => {
       alert("Erro ao excluir cliente.");
     });
 });
-

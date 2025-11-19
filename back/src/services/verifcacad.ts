@@ -1,16 +1,19 @@
-
+// Define o tipo Cliente
 type Cliente = {
   cpf: string;
   nome: string;
   telefone: string;
-  endereco?: string;
+  endereco?: string; // opcional
   senha: string;
 };
 
+// Aguarda o carregamento completo do DOM
 document.addEventListener("DOMContentLoaded", () => {
+  // Botões da tela
   const btnCadastrar = document.getElementById("btnCadastrar") as HTMLButtonElement;
   const btnCadastro = document.getElementById("btnCadastro") as HTMLButtonElement;
 
+  // Função utilitária para capturar dados do formulário
   function getFormData(): Cliente {
     return {
       cpf: (document.getElementById("cpf") as HTMLInputElement).value.trim(),
@@ -21,32 +24,42 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Cadastro normal
+  // -----------------------------
+  // Cadastro normal de cliente
+  // -----------------------------
   btnCadastrar.addEventListener("click", async () => {
-    const dados = getFormData();
+    const dados = getFormData(); // pega dados do formulário
+
+    // Faz requisição POST para a rota /clientes
     const res = await fetch("http://localhost:3000/clientes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
+
     const msg = await res.json();
-    alert(msg.message || msg.error);
+    alert(msg.message || msg.error); // mostra mensagem de sucesso ou erro
   });
 
+  // -----------------------------
   // Verificação + autocompletar
+  // -----------------------------
   btnCadastro.addEventListener("click", async () => {
     const dados = getFormData();
+
+    // Faz requisição POST para a rota /verificar
     const res = await fetch("http://localhost:3000/verificar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
+
     const msg = await res.json();
 
     // Mostra mensagem de sucesso ou erro
     alert(msg.message || msg.error);
 
-    // Só autocompleta se CPF + senha forem válidos
+    // Se CPF + senha forem válidos, preenche automaticamente os campos
     if (msg.clienteBanco && !msg.error) {
       (document.getElementById("nome") as HTMLInputElement).value = msg.clienteBanco.nome;
       (document.getElementById("telefone") as HTMLInputElement).value = msg.clienteBanco.telefone;

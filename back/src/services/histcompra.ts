@@ -1,3 +1,4 @@
+// Referências aos elementos do DOM
 const btnBuscarCompras = document.getElementById("btnBuscarCompras") as HTMLButtonElement;
 const cpfInput = document.getElementById("cpfClienteH") as HTMLInputElement;
 const dataInicioInput = document.getElementById("dataInicioCliente") as HTMLInputElement;
@@ -5,6 +6,8 @@ const dataFimInput = document.getElementById("dataFimCliente") as HTMLInputEleme
 const resultadoDiv = document.getElementById("resultadoCompras") as HTMLDivElement;
 const btnLimparTudo = document.getElementById("btnLimparTudo") as HTMLButtonElement;
 const limparContainer = document.getElementById("limparContainer") as HTMLDivElement;
+
+// Inputs de cliente
 const cpfCliente = document.getElementById("CpfCliente") as HTMLInputElement;
 const nomeCliente = document.getElementById("NomeCliente") as HTMLInputElement;
 const telefoneClient = document.getElementById("TelefoneCliente") as HTMLInputElement;
@@ -13,8 +16,12 @@ const senhaCliente = document.getElementById("SenhaCliente") as HTMLInputElement
 
 const btnAtualizar = document.getElementById("alterac") as HTMLButtonElement;
 
+// Variável para armazenar histórico atual (usada na exportação)
 let historicoAtual: any[] = [];
 
+// -----------------------------
+// Atualizar cliente
+// -----------------------------
 btnAtualizar.addEventListener("click", () => {
   const cpf = cpfCliente.value.trim();
   if (!cpf) {
@@ -22,11 +29,13 @@ btnAtualizar.addEventListener("click", () => {
     return;
   }
 
+  // Captura dados preenchidos
   const nome = nomeCliente.value.trim();
   const telefone = telefoneClient.value.trim();
   const endereco = enderecoCliente.value.trim();
   const senha = senhaCliente.value.trim();
 
+  // Monta objeto dinamicamente
   const cliente: any = {};
   if (nome) cliente.nome = nome;
   if (telefone) cliente.telefone = telefone;
@@ -38,6 +47,7 @@ btnAtualizar.addEventListener("click", () => {
     return;
   }
 
+  // Requisição PUT para atualizar cliente
   fetch(`http://localhost:3000/clientes/${cpf}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -46,12 +56,12 @@ btnAtualizar.addEventListener("click", () => {
     .then(res => res.json())
     .then(data => {
       alert(data.message || data.error);
-      // opcional: limpar campos
-      cpfClienteInput.value = "";
-      nomeClienteInput.value = "";
-      telefoneClienteInput.value = "";
-      enderecoClienteInput.value = "";
-      senhaClienteInput.value = "";
+      // Limpa campos após atualização
+      cpfCliente.value = "";
+      nomeCliente.value = "";
+      telefoneClient.value = "";
+      enderecoCliente.value = "";
+      senhaCliente.value = "";
     })
     .catch(err => {
       console.error("Erro ao atualizar cliente:", err);
@@ -59,14 +69,18 @@ btnAtualizar.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
+// Buscar histórico de compras
+// -----------------------------
 btnBuscarCompras.addEventListener("click", () => {
   resultadoDiv.innerHTML = "";
-  historicoAtual = []; // limpa antes de buscar
+  historicoAtual = []; // limpa histórico anterior
 
   const cpf = cpfInput.value.trim();
   const dataInicio = dataInicioInput.value;
   const dataFim = dataFimInput.value;
 
+  // Validação
   if (!cpf || !dataInicio || !dataFim) {
     resultadoDiv.innerHTML = `<p class="text-danger">Preencha todos os campos para buscar o histórico.</p>`;
     return;
@@ -74,6 +88,7 @@ btnBuscarCompras.addEventListener("click", () => {
 
   const params = new URLSearchParams({ cpf, dataInicio, dataFim });
 
+  // Requisição GET para histórico de compras
   fetch(`http://localhost:3000/historico-compras?${params.toString()}`)
     .then(res => res.json())
     .then(data => {
@@ -82,6 +97,7 @@ btnBuscarCompras.addEventListener("click", () => {
       } else {
         historicoAtual = data.pedidos; // salva para exportação
 
+        // Monta lista de pedidos
         const lista = data.pedidos.map((p: any) => `
           <div class="border rounded p-3 mb-3 bg-light">
             <h6><strong>Data:</strong> ${new Date(p.data_pedido).toLocaleString()}</h6>
@@ -99,7 +115,7 @@ btnBuscarCompras.addEventListener("click", () => {
 
         resultadoDiv.innerHTML = `<h5 class="mb-3">Histórico de Compras:</h5>${lista}`;
       }
-      limparContainer.style.display = "flex"; // mostra o botão
+      limparContainer.style.display = "flex"; // mostra botão de limpar
     })
     .catch(err => {
       console.error("Erro ao buscar histórico:", err);
@@ -107,12 +123,16 @@ btnBuscarCompras.addEventListener("click", () => {
     });
 });
 
+// -----------------------------
+// Exportar histórico em TXT
+// -----------------------------
 document.getElementById("btnExportarTxt")?.addEventListener("click", () => {
   if (historicoAtual.length === 0) {
     alert("Nenhum histórico carregado para exportar.");
     return;
   }
 
+  // Monta linhas de texto
   const linhas = historicoAtual.map((p: any, i: number) => {
     return [
       `Pedido ${i + 1}`,
@@ -128,6 +148,7 @@ document.getElementById("btnExportarTxt")?.addEventListener("click", () => {
     ].filter(Boolean).join("\n");
   });
 
+  // Cria arquivo TXT e dispara download
   const blob = new Blob([linhas.join("\n\n")], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
@@ -139,8 +160,11 @@ document.getElementById("btnExportarTxt")?.addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
+// -----------------------------
+// Limpar todos os campos
+// -----------------------------
 btnLimparTudo.addEventListener("click", () => {
-  // Limpa inputs
+  // Limpa inputs de cliente e histórico
   cpfInput.value = "";
   dataInicioInput.value = "";
   dataFimInput.value = "";
@@ -159,7 +183,7 @@ btnLimparTudo.addEventListener("click", () => {
     if (campo) campo.value = "";
   });
 
-  // Oculta o botão
+  // Oculta botão de limpar
   limparContainer.style.display = "none";
 
   alert("Todos os campos foram limpos!");
