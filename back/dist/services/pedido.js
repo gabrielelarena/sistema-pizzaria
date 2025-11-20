@@ -24,6 +24,7 @@ const inputNome = document.getElementById("nome");
 const inputTelefone = document.getElementById("telefone");
 const inputEndereco = document.getElementById("endereco");
 const inputPagamento = document.getElementById("pagamento");
+const inputSenha = document.getElementById('password');
 // Campos adicionais
 const inputObservacoes = document.getElementById("observacoes");
 const inputCupom = document.getElementById("cupom");
@@ -493,6 +494,7 @@ btnEnviar.addEventListener("click", () => {
     inputPagamento.value = "";
     inputObservacoes.value = "";
     inputCupom.value = "";
+    inputSenha.value = "";
     // Remove feedback visual do cupom e garante que o campo esteja habilitado
     inputCupom.classList.remove("is-valid", "is-invalid");
     inputCupom.disabled = false;
