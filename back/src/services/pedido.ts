@@ -210,6 +210,20 @@ function atualizarBlocoNotas() {
   qtdAdicional.value = "1";
 }
 
+// Função para limpar o bloco de notas
+function limparBlocoNotas() {
+  blocoNotas.innerHTML = "";
+  valorTotal.textContent = "Total: R$ 0,00";
+  pedidos.length = 0; // garante que os pedidos antigos não voltem
+}
+
+// Adiciona evento ao botão
+const btnLimpar = document.getElementById("btnLimpar");
+
+if (btnLimpar) {
+  btnLimpar.addEventListener("click", limparBlocoNotas);
+}
+
 function gerarRecibo(cliente: Cliente, pedidos: Pedido[], pagamento: string, frete: number): string {
   const agora = new Date();
   // Data e hora formatadas para o recibo
@@ -392,9 +406,10 @@ btnValidarCupom.addEventListener("click", async () => {
 
       // Cupom válido se o cliente ainda não tem pedidos (primeira compra)
       if (!data.temPedido) {
-        freteGratis = true;               // ativa frete grátis
+        freteGratis = true;
         alert("Cupom válido: FRETE GRÁTIS!");
         valido = true;
+        ultimo.cupom = cupom; // <-- registra no pedido
       } else {
         alert("Cupom inválido: já existe pedido com este CPF.");
       }
@@ -407,16 +422,13 @@ btnValidarCupom.addEventListener("click", async () => {
 
       // Regras: 3 ou mais pizzas no total para aplicar 20% de desconto nas pizzas
       if (totalPizzas >= 3) {
-        // Aplica o desconto apenas aos pedidos que têm pizza (ignora frete)
         pedidos.forEach(p => {
           const desconto = p.quantidade_pizza > 0 ? p.preco_total * 0.2 : 0;
-          p.preco_total -= desconto; // diminui o valor do pedido
+          p.preco_total -= desconto;
         });
-
         alert("Cupom válido: 20% de desconto aplicado nas pizzas!");
         valido = true;
-      } else {
-        alert("Cupom inválido: precisa de pelo menos 3 pizzas no total.");
+        ultimo.cupom = cupom; // <-- registra
       }
       break;
 
@@ -428,27 +440,23 @@ btnValidarCupom.addEventListener("click", async () => {
       if (totalPedidos > 100) {
         alert("Cupom válido: você ganhou um pudim!");
         valido = true;
-        // Adiciona um aviso visual no bloco de notas
+        ultimo.cupom = cupom; // <-- registra
         blocoNotas.innerHTML += `<p><strong>Promoção:</strong> Pudim grátis incluído</p>`;
-      } else {
-        alert("Cupom inválido: só vale se gastar mais de R$100 no total da compra.");
       }
       break;
 
     case "COKEBOM":
       // Verifica se há pedidos da mesma pizza com tamanhos M e G
       const temGrande = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("G"));
-      const temMedia  = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("M"));
+      const temMedia = pedidos.some(p => p.pizza === ultimo.pizza && p.tamanho.includes("M"));
 
       // Regra: se o último pedido for M e existe G do mesmo sabor, ou último for G e existe M do mesmo sabor
       if ((temGrande && ultimo.tamanho.includes("M")) || (temMedia && ultimo.tamanho.includes("G"))) {
         alert("Cupom válido: ganhou uma Coca 2L!");
         valido = true;
-      } else {
-        alert("Cupom inválido: precisa pedir M e G do mesmo sabor.");
+        ultimo.cupom = cupom; // <-- registra
       }
       break;
-
     default:
       // Qualquer outro código não é reconhecido
       alert("Cupom inválido, corrija antes de enviar.");
@@ -508,19 +516,19 @@ btnEnviar.addEventListener("click", () => {
 
   // Converte para a grafia correta para exibição/armazenamento
   switch (pagamentoNormalizado) {
-    case "pix":      pagamentoNormalizado = "Pix";      break;
-    case "credito":  pagamentoNormalizado = "Crédito";  break;
-    case "debito":   pagamentoNormalizado = "Débito";   break;
+    case "pix": pagamentoNormalizado = "Pix"; break;
+    case "credito": pagamentoNormalizado = "Crédito"; break;
+    case "debito": pagamentoNormalizado = "Débito"; break;
     case "dinheiro": pagamentoNormalizado = "Dinheiro"; break;
   }
 
   // Monta objeto do cliente a partir dos campos do formulário
   const cliente: Cliente = {
     cliente_id: `${inputCPF.value.trim()}-${Date.now()}`, // ID único composto por CPF + timestamp
-    cpf:       inputCPF.value.trim(),
-    nome:      inputNome.value.trim(),
-    telefone:  inputTelefone.value.trim(),
-    endereco:  inputEndereco.value.trim(),
+    cpf: inputCPF.value.trim(),
+    nome: inputNome.value.trim(),
+    telefone: inputTelefone.value.trim(),
+    endereco: inputEndereco.value.trim(),
   };
 
   // Atualiza todos os pedidos com a forma de pagamento normalizada
@@ -531,7 +539,7 @@ btnEnviar.addEventListener("click", () => {
 
   // Gera o recibo (texto) e o CSV (string) considerando o frete calculado
   const recibo = gerarRecibo(cliente, pedidos, pagamentoNormalizado, valorFrete);
-  const csv    = gerarCSV(cliente, pedidos, valorFrete);
+  const csv = gerarCSV(cliente, pedidos, valorFrete);
 
   // Faz download automático do recibo como .txt
   baixarArquivo("recibo.txt", recibo, "text/plain");

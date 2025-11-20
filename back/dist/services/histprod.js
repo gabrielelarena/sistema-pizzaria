@@ -74,6 +74,7 @@ btnLimparRelatorio.addEventListener("click", () => {
     dataInicioProd.value = "";
     dataFimProd.value = "";
     listaVendasDiv.innerHTML = "";
+    ListaVendasDiv.innerHTML = "";
     btnLimparRelatorio.style.display = "none";
     btnExportarTxt.style.display = "none";
     // ⚠️ Atenção: aqui há um erro de digitação → `ListaVendasDiv` (com L maiúsculo) não existe.

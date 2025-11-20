@@ -12,49 +12,49 @@ const btnExportarTxt = document.getElementById("exportarTxt") as HTMLButtonEleme
 // Botão "Procurar Produto"
 // -----------------------------
 btnProcurarProd.addEventListener("click", () => {
-    // Limpa resultados anteriores
-    listaVendasDiv.innerHTML = "";
-    btnLimparRelatorio.style.display = "none";
-    btnExportarTxt.style.display = "none";
+  // Limpa resultados anteriores
+  listaVendasDiv.innerHTML = "";
+  btnLimparRelatorio.style.display = "none";
+  btnExportarTxt.style.display = "none";
 
-    // Captura valores dos inputs
-    const tipo = produtoSelect.value;
-    const nome = nomeProdutoInput.value.trim();
-    const dataInicio = dataInicioProd.value;
-    const dataFim = dataFimProd.value;
+  // Captura valores dos inputs
+  const tipo = produtoSelect.value;
+  const nome = nomeProdutoInput.value.trim();
+  const dataInicio = dataInicioProd.value;
+  const dataFim = dataFimProd.value;
 
-    // Validação
-    if (!tipo || tipo === "Selecione um produto" || !nome || !dataInicio || !dataFim) {
-        listaVendasDiv.innerHTML = `<p class="text-danger">Preencha todos os campos para consultar.</p>`;
+  // Validação
+  if (!tipo || tipo === "Selecione um produto" || !nome || !dataInicio || !dataFim) {
+    listaVendasDiv.innerHTML = `<p class="text-danger">Preencha todos os campos para consultar.</p>`;
+    return;
+  }
+
+  // Monta query string
+  const params = new URLSearchParams({ tipo, nome, dataInicio, dataFim });
+
+  // Requisição GET para histórico de produto
+  fetch(`http://localhost:3000/historico-produto?${params.toString()}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        listaVendasDiv.innerHTML = `<p class="text-danger">${data.error}</p>`;
         return;
-    }
+      }
 
-    // Monta query string
-    const params = new URLSearchParams({ tipo, nome, dataInicio, dataFim });
+      // Salva vendas retornadas
+      vendasProduto = data.vendas;
 
-    // Requisição GET para histórico de produto
-    fetch(`http://localhost:3000/historico-produto?${params.toString()}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                listaVendasDiv.innerHTML = `<p class="text-danger">${data.error}</p>`;
-                return;
-            }
+      // Monta resumo das vendas
+      const resumo = vendasProduto.map(v => {
+        const dataFormatada = new Date(v.data_pedido).toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "long"
+        });
+        return `${v.quantidade} ${data.produto} - ${dataFormatada}`;
+      });
 
-            // Salva vendas retornadas
-            vendasProduto = data.vendas;
-
-            // Monta resumo das vendas
-            const resumo = vendasProduto.map(v => {
-                const dataFormatada = new Date(v.data_pedido).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "long"
-                });
-                return `${v.quantidade} ${data.produto} - ${dataFormatada}`;
-            });
-
-            // Exibe relatório na tela
-            listaVendasDiv.innerHTML = `
+      // Exibe relatório na tela
+      listaVendasDiv.innerHTML = `
         <div class="alert alert-success">
           <strong>${data.produto}</strong> vendido em ${vendasProduto.length} pedido(s).
         </div>
@@ -63,14 +63,14 @@ btnProcurarProd.addEventListener("click", () => {
         </ul>
       `;
 
-            // Mostra botões de limpar e exportar
-            btnLimparRelatorio.style.display = "inline-block";
-            btnExportarTxt.style.display = "block";
-        })
-        .catch(err => {
-            console.error("Erro ao consultar produto:", err);
-            listaVendasDiv.innerHTML = `<p class="text-danger">Erro ao consultar produto.</p>`;
-        });
+      // Mostra botões de limpar e exportar
+      btnLimparRelatorio.style.display = "inline-block";
+      btnExportarTxt.style.display = "block";
+    })
+    .catch(err => {
+      console.error("Erro ao consultar produto:", err);
+      listaVendasDiv.innerHTML = `<p class="text-danger">Erro ao consultar produto.</p>`;
+    });
 });
 
 // -----------------------------
@@ -83,6 +83,7 @@ btnLimparRelatorio.addEventListener("click", () => {
   dataInicioProd.value = "";
   dataFimProd.value = "";
   listaVendasDiv.innerHTML = "";
+  ListaVendasDiv.innerHTML = "";
   btnLimparRelatorio.style.display = "none";
   btnExportarTxt.style.display = "none";
 

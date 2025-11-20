@@ -168,6 +168,17 @@ function atualizarBlocoNotas() {
     adicional.selectedIndex = 0;
     qtdAdicional.value = "1";
 }
+// Função para limpar o bloco de notas
+function limparBlocoNotas() {
+    blocoNotas.innerHTML = "";
+    valorTotal.textContent = "Total: R$ 0,00";
+    pedidos.length = 0; // garante que os pedidos antigos não voltem
+}
+// Adiciona evento ao botão
+const btnLimpar = document.getElementById("btnLimpar");
+if (btnLimpar) {
+    btnLimpar.addEventListener("click", limparBlocoNotas);
+}
 function gerarRecibo(cliente, pedidos, pagamento, frete) {
     const agora = new Date();
     // Data e hora formatadas para o recibo
@@ -327,9 +338,10 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             console.log("Resultado verificação:", data);
             // Cupom válido se o cliente ainda não tem pedidos (primeira compra)
             if (!data.temPedido) {
-                freteGratis = true; // ativa frete grátis
+                freteGratis = true;
                 alert("Cupom válido: FRETE GRÁTIS!");
                 valido = true;
+                ultimo.cupom = cupom; // <-- registra no pedido
             }
             else {
                 alert("Cupom inválido: já existe pedido com este CPF.");
@@ -341,16 +353,13 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             const totalPizzas = pedidos.reduce((acc, p) => acc + p.quantidade_pizza, 0);
             // Regras: 3 ou mais pizzas no total para aplicar 20% de desconto nas pizzas
             if (totalPizzas >= 3) {
-                // Aplica o desconto apenas aos pedidos que têm pizza (ignora frete)
                 pedidos.forEach(p => {
                     const desconto = p.quantidade_pizza > 0 ? p.preco_total * 0.2 : 0;
-                    p.preco_total -= desconto; // diminui o valor do pedido
+                    p.preco_total -= desconto;
                 });
                 alert("Cupom válido: 20% de desconto aplicado nas pizzas!");
                 valido = true;
-            }
-            else {
-                alert("Cupom inválido: precisa de pelo menos 3 pizzas no total.");
+                ultimo.cupom = cupom; // <-- registra
             }
             break;
         case "PUDIMZIM":
@@ -360,11 +369,8 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             if (totalPedidos > 100) {
                 alert("Cupom válido: você ganhou um pudim!");
                 valido = true;
-                // Adiciona um aviso visual no bloco de notas
+                ultimo.cupom = cupom; // <-- registra
                 blocoNotas.innerHTML += `<p><strong>Promoção:</strong> Pudim grátis incluído</p>`;
-            }
-            else {
-                alert("Cupom inválido: só vale se gastar mais de R$100 no total da compra.");
             }
             break;
         case "COKEBOM":
@@ -375,9 +381,7 @@ btnValidarCupom.addEventListener("click", () => __awaiter(void 0, void 0, void 0
             if ((temGrande && ultimo.tamanho.includes("M")) || (temMedia && ultimo.tamanho.includes("G"))) {
                 alert("Cupom válido: ganhou uma Coca 2L!");
                 valido = true;
-            }
-            else {
-                alert("Cupom inválido: precisa pedir M e G do mesmo sabor.");
+                ultimo.cupom = cupom; // <-- registra
             }
             break;
         default:
