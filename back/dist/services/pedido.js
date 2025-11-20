@@ -24,7 +24,7 @@ const inputNome = document.getElementById("nome");
 const inputTelefone = document.getElementById("telefone");
 const inputEndereco = document.getElementById("endereco");
 const inputPagamento = document.getElementById("pagamento");
-const inputSenha = document.getElementById('password');
+const inputSenha = document.getElementById("senha");
 // Campos adicionais
 const inputObservacoes = document.getElementById("observacoes");
 const inputCupom = document.getElementById("cupom");
