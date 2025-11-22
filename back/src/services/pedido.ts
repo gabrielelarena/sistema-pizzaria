@@ -76,28 +76,9 @@ btnAdicionar.addEventListener("click", () => {
   }
 
   // Captura dados do cliente
-  const cpf = inputCPF.value.trim();
-  const nome = inputNome.value.trim();
-  const telefone = inputTelefone.value.trim();
   const pagamento = inputPagamento.value.trim();
 
   // Validações básicas
-  const cpfValido = /^\d{11}$/.test(cpf); // 11 dígitos numéricos
-  const nomeValido = /^[A-Za-zÀ-ÿ\s]{3,}$/.test(nome); // mínimo 3 letras
-  const telefoneValido = /^\d+$/.test(telefone); // apenas números
-
-  if (!cpfValido) {
-    alert("CPF inválido! Deve conter exatamente 11 números, sem pontuações ou espaços.");
-    return;
-  }
-  if (!nomeValido) {
-    alert("Nome inválido! Deve conter no mínimo 3 letras e apenas letras.");
-    return;
-  }
-  if (!telefoneValido) {
-    alert("Telefone inválido! Deve conter apenas números.");
-    return;
-  }
   if (!pagamento) {
     alert("Preencha o campo Forma de Pagamento também!");
     return;
