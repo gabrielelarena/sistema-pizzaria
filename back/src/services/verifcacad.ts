@@ -11,7 +11,7 @@ type Cliente = {
 document.addEventListener("DOMContentLoaded", () => {
   // Botões da tela
   const btnCadastrar = document.getElementById("btnCadastrar") as HTMLButtonElement;
-  const btnCadastro = document.getElementById("btnCadastro") as HTMLButtonElement;
+  const btnCadastro = document.getElementById("btnCadastro") as HTMLButtonButtonElement;
 
   // Função utilitária para capturar dados do formulário
   function getFormData(): Cliente {
@@ -24,11 +24,38 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  // Função de validação
+  function validarCampos(dados: Cliente): string | null {
+    // CPF → apenas números e exatamente 11 dígitos
+    if (!/^\d{11}$/.test(dados.cpf)) {
+      return "O CPF deve conter exatamente 11 números.";
+    }
+
+    // Nome → somente letras (incluindo acentos) + espaços
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/.test(dados.nome)) {
+      return "O nome deve conter apenas letras.";
+    }
+
+    // Telefone → pelo menos 8 números
+    if (!/^\d{8,}$/.test(dados.telefone)) {
+      return "O telefone deve conter pelo menos 8 números.";
+    }
+
+    return null; // tudo certo
+  }
+
   // -----------------------------
   // Cadastro normal de cliente
   // -----------------------------
   btnCadastrar.addEventListener("click", async () => {
-    const dados = getFormData(); // pega dados do formulário
+    const dados = getFormData();
+
+    // validação antes do fetch
+    const erro = validarCampos(dados);
+    if (erro) {
+      alert(erro);
+      return;
+    }
 
     // Faz requisição POST para a rota /clientes
     const res = await fetch("http://localhost:3000/clientes", {
@@ -38,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const msg = await res.json();
-    alert(msg.message || msg.error); // mostra mensagem de sucesso ou erro
+    alert(msg.message || msg.error);
   });
 
   // -----------------------------
@@ -46,6 +73,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   btnCadastro.addEventListener("click", async () => {
     const dados = getFormData();
+
+    // validação antes de verificar
+    const erro = validarCampos(dados);
+    if (erro) {
+      alert(erro);
+      return;
+    }
 
     // Faz requisição POST para a rota /verificar
     const res = await fetch("http://localhost:3000/verificar", {
@@ -56,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const msg = await res.json();
 
-    // Mostra mensagem de sucesso ou erro
     alert(msg.message || msg.error);
 
     // Se CPF + senha forem válidos, preenche automaticamente os campos
