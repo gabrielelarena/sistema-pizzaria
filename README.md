@@ -1,5 +1,6 @@
 
 npm install -D @types/express @types/cors @types/node typescript ts-node-dev
+npm install -D @types/bcrypt
 
 bom dia, para avisar!
 <br>
