@@ -132,6 +132,7 @@ btnAdicionar.addEventListener("click", () => {
 // -----------------------------
 // Atualiza visualmente o bloco de notas
 // -----------------------------
+
 function atualizarBlocoNotas() {
   blocoNotas.innerHTML = "";
   let valorTotalGeral = 0;
