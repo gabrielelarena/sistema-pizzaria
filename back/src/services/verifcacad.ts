@@ -24,46 +24,78 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  // Função de validação dos campos obrigatórios
+function validarCampos(dados: Cliente): string | null {
+  // Verifica CPF (não vazio e apenas números com 11 dígitos)
+  if (!dados.cpf || !/^\d{11}$/.test(dados.cpf)) {
+    return "CPF inválido. Informe 11 dígitos numéricos.";
+  }
+
+  // Verifica Nome (não vazio e mínimo de 3 caracteres)
+  if (!dados.nome || dados.nome.length < 3) {
+    return "Nome inválido. Informe pelo menos 3 caracteres.";
+  }
+
+  // Verifica Telefone (não vazio e apenas números com 10 ou 11 dígitos)
+  if (!dados.telefone || !/^\d{10,11}$/.test(dados.telefone)) {
+    return "Telefone inválido. Informe 10 ou 11 dígitos numéricos.";
+  }
+
+  return null; // se tudo estiver ok
+}
+
   // -----------------------------
   // Cadastro normal de cliente
   // -----------------------------
-  btnCadastrar.addEventListener("click", async () => {
-    const dados = getFormData(); // pega dados do formulário
+btnCadastrar.addEventListener("click", async () => {
+  const dados = getFormData();
 
-    // Faz requisição POST para a rota /clientes
-    const res = await fetch("http://localhost:3000/clientes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados)
-    });
+  // Validação
+  const erro = validarCampos(dados);
+  if (erro) {
+    alert(erro);
+    return; // interrompe se houver erro
+  }
 
-    const msg = await res.json();
-    alert(msg.message || msg.error); // mostra mensagem de sucesso ou erro
+  // Faz requisição POST para a rota /clientes
+  const res = await fetch("http://localhost:3000/clientes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
   });
+
+  const msg = await res.json();
+  alert(msg.message || msg.error);
+});
 
   // -----------------------------
   // Verificação + autocompletar
   // -----------------------------
-  btnCadastro.addEventListener("click", async () => {
-    const dados = getFormData();
+btnCadastro.addEventListener("click", async () => {
+  const dados = getFormData();
 
-    // Faz requisição POST para a rota /verificar
-    const res = await fetch("http://localhost:3000/verificar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados)
-    });
+  // Validação
+  const erro = validarCampos(dados);
+  if (erro) {
+    alert(erro);
+    return;
+  }
 
-    const msg = await res.json();
-
-    // Mostra mensagem de sucesso ou erro
-    alert(msg.message || msg.error);
-
-    // Se CPF + senha forem válidos, preenche automaticamente os campos
-    if (msg.clienteBanco && !msg.error) {
-      (document.getElementById("nome") as HTMLInputElement).value = msg.clienteBanco.nome;
-      (document.getElementById("telefone") as HTMLInputElement).value = msg.clienteBanco.telefone;
-      (document.getElementById("endereco") as HTMLInputElement).value = msg.clienteBanco.endereco;
-    }
+  // Faz requisição POST para a rota /verificar
+  const res = await fetch("http://localhost:3000/verificar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
   });
+
+  const msg = await res.json();
+  alert(msg.message || msg.error);
+
+  if (msg.clienteBanco && !msg.error) {
+    (document.getElementById("nome") as HTMLInputElement).value = msg.clienteBanco.nome;
+    (document.getElementById("telefone") as HTMLInputElement).value = msg.clienteBanco.telefone;
+    (document.getElementById("endereco") as HTMLInputElement).value = msg.clienteBanco.endereco;
+  }
+});
+
 });
