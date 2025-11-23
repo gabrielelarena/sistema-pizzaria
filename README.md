@@ -1,11 +1,11 @@
 <div align="center">
 
-  <img src="./pizza.png" alt="Logo" height="200">
+  <img width="150" height="150" alt="image" src="https://github.com/user-attachments/assets/de688aee-2b95-4371-b605-b12faafb5ad6"/>
   <h1 align="center"><strong>SISTEMA DA PIZZARIA PARMA</strong></h1>
   <p align="center">
 	 Este é um projeto completo de um site de pizzaria desenvolvido em HTML + TypeScript + Node.js. <br> Website criado para gerenciar Entrada, Armazenamento, Saída e Consulta pelos dados do pedido.
   </p>
-
+  
 </div>
 
 <br />
