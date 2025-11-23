@@ -138,7 +138,6 @@ Crie (ou confira) os scripts no **package.json**:
     {...} // outros comandos
   },
   "include": ["back/src/**/*"]
-}
 ```
 
 Após isso, instale as bibliotecas:
