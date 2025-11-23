@@ -5,7 +5,7 @@
   <p align="center">
 	 Este é um projeto completo de um site de pizzaria desenvolvido em HTML + TypeScript + Node.js. <br> Website criado para gerenciar Entrada, Armazenamento, Saída e Consulta pelos dados do pedido.
   </p>
-  
+
 </div>
 
 <br />
@@ -128,11 +128,9 @@ Crie (ou confira) os scripts no **package.json**:
 
 ```json
 "compilerOptions": {
-    // File Layout
     "rootDir": "./back/src",
     "outDir": "./back/dist",
 
-    // Environment Settings
     "module": "ES6",            
     "target": "ES6",           
     "lib": ["DOM", "ES6"],      
