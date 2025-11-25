@@ -19,6 +19,18 @@ h3 {
     color: #0a430c;
 }
 
+.pdf {
+    text-align: center;
+    display: block;
+    margin: 20px;
+    color: #000;
+    text-decoration: none;
+}
+
+.pdf:hover {
+    text-decoration: underline;
+}
+
 
 /*forms e inputs*/
 
