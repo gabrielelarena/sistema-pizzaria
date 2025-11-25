@@ -22,36 +22,47 @@ let historicoAtual: any[] = [];
 // -----------------------------
 // Atualizar cliente
 // -----------------------------
+
 btnAtualizar.addEventListener("click", () => {
   const cpf = cpfCliente.value.trim();
+  const senha = senhaCliente.value.trim();
+
+  // CPF e senha são obrigatórios para permitir qualquer atualização
   if (!cpf) {
     alert("Informe o CPF do cliente para atualizar.");
     return;
   }
+  if (!senha) {
+    alert("Informe a senha do cliente para atualizar.");
+    return;
+  }
 
-  // Captura dados preenchidos
+  // Captura dados preenchidos (campos que realmente serão atualizados)
   const nome = nomeCliente.value.trim();
   const telefone = telefoneClient.value.trim();
   const endereco = enderecoCliente.value.trim();
-  const senha = senhaCliente.value.trim();
 
-  // Monta objeto dinamicamente
-  const cliente: any = {};
-  if (nome) cliente.nome = nome;
-  if (telefone) cliente.telefone = telefone;
-  if (endereco) cliente.endereco = endereco;
-  if (senha) cliente.senha = senha;
+  // Monta objeto apenas com os campos que serão alterados
+  const clienteUpdate: any = {};
+  if (nome) clienteUpdate.nome = nome;
+  if (telefone) clienteUpdate.telefone = telefone;
+  if (endereco) clienteUpdate.endereco = endereco;
 
-  if (Object.keys(cliente).length === 0) {
-    alert("Preencha ao menos um campo para atualizar.");
+  // Se não houver nenhum campo para atualizar, avisa o usuário
+  if (Object.keys(clienteUpdate).length === 0) {
+    alert("Preencha ao menos um campo (nome, telefone ou endereço) para atualizar.");
     return;
   }
 
   // Requisição PUT para atualizar cliente
+  // Envia a senha como cabeçalho de autenticação (não como campo de atualização)
   fetch(`http://localhost:3000/clientes/${cpf}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cliente),
+    headers: {
+      "Content-Type": "application/json",
+      "X-Client-Senha": senha
+    },
+    body: JSON.stringify(clienteUpdate),
   })
     .then(res => res.json())
     .then(data => {
